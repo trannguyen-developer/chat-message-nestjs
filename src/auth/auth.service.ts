@@ -2,7 +2,6 @@ import {
   HttpException,
   HttpStatus,
   Injectable,
-  Res,
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -12,7 +11,8 @@ import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
 import { SignInDto } from './dto/signin.dto';
 import { Response } from 'express';
-import { JwtService } from '@nestjs/jwt';
+import { JwtService, JwtSignOptions } from '@nestjs/jwt';
+import { expiresTimeRefreshToken, jwtConstants } from './constants';
 
 @Injectable()
 export class AuthService {
@@ -22,58 +22,134 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async signIn(signInDTO: SignInDto, res: Response) {
-    const { username, password } = signInDTO;
+  async hashPassword(password: string): Promise<string> {
+    const saltRounds = 10;
+    const salt = bcrypt.genSaltSync(saltRounds);
+    return bcrypt.hashSync(password, salt);
+  }
 
-    const findUser = await this.usersRepository.findOneBy({
-      username,
+  async getToken(
+    payload: Buffer | object,
+    options?: JwtSignOptions,
+  ): Promise<string> {
+    const token = await this.jwtService.signAsync(payload, options);
+
+    return token;
+  }
+
+  async comparePassword(
+    password: string | undefined,
+    storePasswordHash: string | undefined,
+  ): Promise<any> {
+    return await bcrypt.compare(password || '', storePasswordHash || '');
+  }
+
+  async authentication(email: string, password: string): Promise<any> {
+    console.log(1);
+    const user = await this.usersRepository.findOneBy({
+      email,
     });
 
-    console.log('findUser', findUser);
+    console.log('user', user);
 
-    if (!findUser) throw new UnauthorizedException();
+    const check = await this.comparePassword(password, user?.password);
 
-    const isComparePw = bcrypt.compareSync(password, findUser.password);
+    if (!user || !check) {
+      throw new UnauthorizedException();
+    }
+    debugger;
 
-    if (!isComparePw) throw new UnauthorizedException();
+    return user;
+  }
 
-    const payload = { username: findUser.username };
+  async signIn(signInDTO: SignInDto, res?: Response) {
+    const { email } = signInDTO;
 
-    const accessToken = await this.jwtService.signAsync(payload);
+    const payload = { email };
+    const accessToken = await this.getToken(payload);
+    const refreshToken = await this.getToken(payload, {
+      expiresIn: expiresTimeRefreshToken,
+    });
+
+    await this.usersRepository.update(
+      { email },
+      { access_token: accessToken, refresh_token: refreshToken },
+    );
 
     res.json({
       success: true,
       data: {
         access_token: accessToken,
+        refresh_token: refreshToken,
       },
     });
   }
 
-  async signUp(userCreateDTO: CreateUserDto): Promise<User> {
-    const { username, nickname, password } = userCreateDTO;
+  async signUp(userCreateDTO: CreateUserDto, res?: Response) {
+    const { email, username, password } = userCreateDTO;
 
-    const userExist = await this.usersRepository.findOne({
-      where: { username },
+    const emailExist = await this.usersRepository.findOne({
+      where: { email },
     });
 
-    console.log('userExist', userExist);
-
-    if (userExist) {
+    if (emailExist) {
       throw new HttpException('Username existed', HttpStatus.CONFLICT);
     }
 
     // hash password
-    const saltRounds = 10;
-    const salt = bcrypt.genSaltSync(saltRounds);
-    const passwordHash = bcrypt.hashSync(password, salt);
+    const passwordHash = await this.hashPassword(password);
+
+    const payload = { email };
+    const accessToken = await this.getToken(payload);
+    const refreshToken = await this.getToken(payload, {
+      expiresIn: expiresTimeRefreshToken,
+    });
 
     const user = await this.usersRepository.create({
+      email,
       username,
-      nickname,
       password: passwordHash,
+      access_token: accessToken,
+      refresh_token: refreshToken,
     });
 
     await this.usersRepository.save(user);
-    return user;
+    res.json({
+      success: true,
+      data: user,
+    });
+  }
+
+  async refreshToken(refreshToken: string) {
+    const existingRefreshToken = await this.usersRepository.findOne({
+      where: { refresh_token: refreshToken },
+    });
+    if (!existingRefreshToken) {
+      throw new HttpException('Not found refresh_token', HttpStatus.NOT_FOUND);
+    }
+
+    // Xác minh refreshToken
+    let payloadToken;
+    try {
+      payloadToken = await this.jwtService.verifyAsync(refreshToken, {
+        secret: jwtConstants.secret,
+      });
+    } catch (error) {
+      throw new HttpException(
+        "Can't decode refreshToken",
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
+    // create new access token
+    const newAccessToken = await this.getToken(payloadToken);
+
+    // save new token in database
+    await this.usersRepository.update(
+      { refresh_token: refreshToken },
+      { access_token: newAccessToken },
+    );
+
+    console.log('decodedToken', payloadToken);
   }
 }

@@ -11,11 +11,15 @@ export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
   @Column({ unique: true, nullable: true })
-  username: string;
+  email: string;
   @Column({ nullable: true })
-  nickname: string;
+  username: string;
   @Column()
   password: string;
+  @Column()
+  access_token: string;
+  @Column()
+  refresh_token: string;
   @CreateDateColumn({
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP(6)',

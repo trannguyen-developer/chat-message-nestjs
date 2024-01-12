@@ -3,7 +3,12 @@ import { AppModule } from './app.module';
 import { BadRequestException, ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { cors: true });
+
+  // app.enableCors({
+  //   allowedHeaders: '*',
+  //   origin: '*',
+  // });
 
   // app.useGlobalPipes(new ValidationPipe({ stopAtFirstError: true }));
   app.useGlobalPipes(
@@ -22,7 +27,7 @@ async function bootstrap() {
   // const { httpAdapter } = app.get(HttpAdapterHost);
   // app.useGlobalFilters(new AllExceptionsFilter(httpAdapter));
 
-  await app.listen(6000);
+  await app.listen(5555);
 }
 
 bootstrap();
