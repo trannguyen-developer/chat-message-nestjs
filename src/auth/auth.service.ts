@@ -13,6 +13,8 @@ import { SignInDto } from './dto/signin.dto';
 import { Response } from 'express';
 import { JwtService, JwtSignOptions } from '@nestjs/jwt';
 import { expiresTimeRefreshToken, jwtConstants } from './constants';
+import { MailerService } from '@nestjs-modules/mailer';
+import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class AuthService {
@@ -20,6 +22,8 @@ export class AuthService {
     @InjectRepository(User)
     private usersRepository: Repository<User>,
     private jwtService: JwtService,
+    private mailerServices: MailerService,
+    private mailServices: MailService,
   ) {}
 
   async hashPassword(password: string): Promise<string> {
@@ -45,12 +49,10 @@ export class AuthService {
   }
 
   async authentication(email: string, password: string): Promise<any> {
-    console.log(1);
     const user = await this.usersRepository.findOneBy({
       email,
     });
 
-    console.log('user', user);
 
     const check = await this.comparePassword(password, user?.password);
 
@@ -105,6 +107,16 @@ export class AuthService {
       expiresIn: expiresTimeRefreshToken,
     });
 
+    await this.mailServices.sendMail({
+      toEmail: userCreateDTO.email,
+      subject: 'Welcome to my website',
+      template: './welcome',
+      context: {
+        name: userCreateDTO.username,
+      },
+    });
+
+    
     const user = await this.usersRepository.create({
       email,
       username,
@@ -150,6 +162,5 @@ export class AuthService {
       { access_token: newAccessToken },
     );
 
-    console.log('decodedToken', payloadToken);
   }
 }

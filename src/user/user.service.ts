@@ -12,7 +12,6 @@ export class UserService {
     private jwtService: JwtService,
   ) {}
   async getInfo(authorization) {
-    console.log('headers', authorization);
     const token = authorization.split(' ')?.[1];
     const decodedJwtAccessToken = this.jwtService.decode(token);
 

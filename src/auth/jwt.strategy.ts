@@ -24,12 +24,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   async validate(req: e.Request, payload: any) {
     const rawToken = req.headers['authorization'].split(' ')[1];
 
-    console.log('rawToken', rawToken);
 
     const user = await this.usersRepository.findOneBy({
       access_token: rawToken,
     });
-    console.log('token', rawToken);
     return { email: payload.email };
   }
 }

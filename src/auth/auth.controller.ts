@@ -4,13 +4,14 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { SignInDto } from './dto/signin.dto';
 import { Response } from 'express';
 import { LocalAuthGuard } from './guards/local.guard';
+import { MailerService } from '@nestjs-modules/mailer';
 
 @Controller('auth')
 export class AuthController {
-  private readonly authService: AuthService;
-  constructor(authService: AuthService) {
-    this.authService = authService;
-  }
+  constructor(
+    private readonly authService: AuthService,
+    private mailerServices: MailerService,
+  ) {}
 
   @UseGuards(LocalAuthGuard)
   @Post('sign-in')
