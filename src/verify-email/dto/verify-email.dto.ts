@@ -1,12 +1,20 @@
 import {
   IsString,
   IsDefined,
-  Length,
   IsNotEmpty,
   IsEmail,
+  Length,
 } from 'class-validator';
 
-export class SignInDto {
+export class VerifyCodeDTO {
+  @IsDefined()
+  @IsString()
+  @IsNotEmpty()
+  @IsEmail()
+  public email: string;
+}
+
+export class SendVerifyCodeDTO {
   @IsDefined()
   @IsString()
   @IsNotEmpty()
@@ -16,5 +24,6 @@ export class SignInDto {
   @IsDefined()
   @IsString()
   @IsNotEmpty()
-  public password: string;
+  @Length(6, 6)
+  public code: string;
 }

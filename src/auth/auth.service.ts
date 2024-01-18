@@ -6,15 +6,13 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from './user.entity';
-import { CreateUserDto } from './dto/create-user.dto';
+import { User } from 'src/auth/user.entity';
+import { CreateUserDto } from 'src/auth/dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
-import { SignInDto } from './dto/signin.dto';
+import { SignInDto } from 'src/auth/dto/signin.dto';
 import { Response } from 'express';
 import { JwtService, JwtSignOptions } from '@nestjs/jwt';
-import { expiresTimeRefreshToken, jwtConstants } from './constants';
-import { MailerService } from '@nestjs-modules/mailer';
-import { MailService } from 'src/mail/mail.service';
+import { expiresTimeRefreshToken, jwtConstants } from 'src/auth/constants';
 
 @Injectable()
 export class AuthService {
@@ -22,8 +20,6 @@ export class AuthService {
     @InjectRepository(User)
     private usersRepository: Repository<User>,
     private jwtService: JwtService,
-    private mailerServices: MailerService,
-    private mailServices: MailService,
   ) {}
 
   async hashPassword(password: string): Promise<string> {
@@ -52,7 +48,6 @@ export class AuthService {
     const user = await this.usersRepository.findOneBy({
       email,
     });
-
 
     const check = await this.comparePassword(password, user?.password);
 
@@ -107,16 +102,15 @@ export class AuthService {
       expiresIn: expiresTimeRefreshToken,
     });
 
-    await this.mailServices.sendMail({
-      toEmail: userCreateDTO.email,
-      subject: 'Welcome to my website',
-      template: './welcome',
-      context: {
-        name: userCreateDTO.username,
-      },
-    });
+    // await this.mailServices.sendMail({
+    //   toEmail: userCreateDTO.email,
+    //   subject: 'Welcome to my website',
+    //   template: './welcome',
+    //   context: {
+    //     name: userCreateDTO.username,
+    //   },
+    // });
 
-    
     const user = await this.usersRepository.create({
       email,
       username,
@@ -161,6 +155,5 @@ export class AuthService {
       { refresh_token: refreshToken },
       { access_token: newAccessToken },
     );
-
   }
 }

@@ -6,6 +6,8 @@ import { UserModule } from './user/user.module';
 import { PassportModule } from '@nestjs/passport';
 import { MailModule } from './mail/mail.module';
 import { ConfigModule } from '@nestjs/config';
+import { VerifyEmailModule } from './verify-email/verify-email.module';
+import { VerifyEmail } from './verify-email/verify-email.entity';
 
 @Module({
   imports: [
@@ -18,14 +20,14 @@ import { ConfigModule } from '@nestjs/config';
       password: process.env.DATABASE_PASSWORD,
       database: process.env.DATABASE_NAME,
 
-      entities: [User],
+      entities: [User, VerifyEmail],
       synchronize: true,
     }),
     MailModule,
     PassportModule,
     AuthModule,
     UserModule,
+    VerifyEmailModule,
   ],
 })
-
 export class AppModule {}

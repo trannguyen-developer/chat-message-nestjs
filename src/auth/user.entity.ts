@@ -1,7 +1,10 @@
+import { VerifyEmail } from 'src/verify-email/verify-email.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -16,20 +19,26 @@ export class User {
   username: string;
   @Column()
   password: string;
+  @Column({ nullable: true, default: false })
+  is_verify: boolean;
   @Column()
   access_token: string;
   @Column()
   refresh_token: string;
-  @CreateDateColumn({
-    type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP(6)',
-  })
-  created_at: Date;
-
-  @UpdateDateColumn({
+  @OneToOne(() => VerifyEmail, { eager: true })
+  @JoinColumn({ name: 'verify_id' })
+  verify: VerifyEmail;
+  @Column({
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP(6)',
     onUpdate: 'CURRENT_TIMESTAMP(6)',
   })
-  updated_at: Date;
+  created_time: Date;
+
+  @Column({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP(6)',
+    onUpdate: 'CURRENT_TIMESTAMP(6)',
+  })
+  expired_time: Date;
 }
