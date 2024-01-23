@@ -8,6 +8,7 @@ import { MailModule } from './mail/mail.module';
 import { ConfigModule } from '@nestjs/config';
 import { VerifyEmailModule } from './verify-email/verify-email.module';
 import { VerifyEmail } from './verify-email/verify-email.entity';
+import { HelpersModule } from './helpers/helpers.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { VerifyEmail } from './verify-email/verify-email.entity';
     AuthModule,
     UserModule,
     VerifyEmailModule,
+    HelpersModule,
   ],
 })
 export class AppModule {}

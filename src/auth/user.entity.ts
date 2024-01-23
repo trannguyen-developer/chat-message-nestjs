@@ -25,8 +25,8 @@ export class User {
   access_token: string;
   @Column()
   refresh_token: string;
-  @OneToOne(() => VerifyEmail, { eager: true })
-  @JoinColumn({ name: 'verify_id' })
+  @OneToOne(() => VerifyEmail, { cascade: true, eager: true })
+  @JoinColumn({ name: 'verify_id', referencedColumnName: 'id' })
   verify: VerifyEmail;
   @Column({
     type: 'timestamp',
@@ -40,5 +40,5 @@ export class User {
     default: () => 'CURRENT_TIMESTAMP(6)',
     onUpdate: 'CURRENT_TIMESTAMP(6)',
   })
-  expired_time: Date;
+  updated_time: Date;
 }

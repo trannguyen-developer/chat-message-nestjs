@@ -1,11 +1,18 @@
-import { HttpException, HttpStatus, Injectable, Res } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+  Res,
+} from '@nestjs/common';
 import { VerifyEmail } from './verify-email.entity';
-import { Repository } from 'typeorm';
-import { InjectRepository } from '@nestjs/typeorm';
+import { DataSource, Repository } from 'typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { SendVerifyCodeDTO, VerifyCodeDTO } from './dto/verify-email.dto';
 import { User } from 'src/auth/user.entity';
 import { Response } from 'express';
 import { MailService } from 'src/mail/mail.service';
+import { HelpersService } from 'src/helpers/helpers.service';
 
 @Injectable()
 export class VerifyEmailService {
@@ -15,6 +22,7 @@ export class VerifyEmailService {
     @InjectRepository(User)
     private usersRepository: Repository<User>,
     private mailServices: MailService,
+    private helpersServices: HelpersService,
   ) {}
 
   async createVerifyCode(verifyCodeDto: VerifyCodeDTO) {
@@ -61,14 +69,18 @@ export class VerifyEmailService {
         Math.floor(100000 + Math.random() * 900000),
       );
 
+      const expiredTime = new Date();
+      expiredTime.setMinutes(expiredTime.getMinutes() + 5);
+
       if (findUser.verify?.id) {
         await this.verifyEmailRepository.update(
           { id: findUser.verify.id },
-          { verify_code: randomSixDigits },
+          { verify_code: randomSixDigits, expired_time: expiredTime },
         );
       } else {
         const newVerifyEmail = this.verifyEmailRepository.create({
           verify_code: randomSixDigits,
+          expired_time: expiredTime,
         });
 
         await this.verifyEmailRepository.save(newVerifyEmail);
@@ -81,7 +93,7 @@ export class VerifyEmailService {
 
       await this.mailServices.sendMail({
         toEmail: findUser.email,
-        subject: 'Welcome to my website',
+        subject: 'Verify email',
         template: './verify-email',
         context: {
           name: findUser.username,
@@ -92,22 +104,46 @@ export class VerifyEmailService {
       res.json({ success: true, data: { verifyCode: randomSixDigits } });
     } catch (error) {
       console.warn('error', error);
-      throw new HttpException("Can't find user", HttpStatus.NOT_FOUND, error);
+      throw error;
     }
   }
-  x;
 
   async sendVerifyCode(sendVerifyCodeDto: SendVerifyCodeDTO, res: Response) {
     try {
-      const user = await this.usersRepository.find({
-        relations: ['verify', 'verify.id'],
+      const user = await this.usersRepository.findOne({
+        relations: ['verify'],
+        where: { email: sendVerifyCodeDto.email },
       });
 
-      console.log('user', user);
-      res.json({ oke: 'oke' });
+      if (!user)
+        throw new HttpException("Can't find user", HttpStatus.NOT_FOUND);
+
+      if (user.verify.verify_code !== sendVerifyCodeDto.code)
+        throw new HttpException(
+          'Verify code not correct',
+          HttpStatus.BAD_REQUEST,
+        );
+
+      const expirationTime = new Date(user.verify.expired_time); // Thay thế bằng thời gian hết hạn thực tế của bạn
+
+      const isExpired = this.helpersServices.isExpired(expirationTime);
+
+      if (isExpired) {
+        throw new HttpException(
+          'Verification code has expired.',
+          HttpStatus.UNAUTHORIZED,
+        );
+      }
+
+      await this.usersRepository.update(
+        { email: sendVerifyCodeDto.email },
+        { is_verify: true },
+      );
+
+      res.json({ success: true, message: 'Verify email success' });
     } catch (error) {
       console.log('error', error);
-      throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+      throw error;
     }
   }
 }
