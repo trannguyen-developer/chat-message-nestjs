@@ -9,6 +9,8 @@ import { ConfigModule } from '@nestjs/config';
 import { VerifyEmailModule } from './verify-email/verify-email.module';
 import { VerifyEmail } from './verify-email/verify-email.entity';
 import { HelpersModule } from './helpers/helpers.module';
+import { ResetPasswordModule } from './reset-password/reset-password.module';
+import { ResetPassword } from './reset-password/reset-password.entity';
 
 @Module({
   imports: [
@@ -20,8 +22,7 @@ import { HelpersModule } from './helpers/helpers.module';
       username: process.env.DATABASE_USERNAME,
       password: process.env.DATABASE_PASSWORD,
       database: process.env.DATABASE_NAME,
-
-      entities: [User, VerifyEmail],
+      entities: [User, VerifyEmail, ResetPassword],
       synchronize: true,
     }),
     MailModule,
@@ -30,6 +31,7 @@ import { HelpersModule } from './helpers/helpers.module';
     UserModule,
     VerifyEmailModule,
     HelpersModule,
+    ResetPasswordModule,
   ],
 })
 export class AppModule {}

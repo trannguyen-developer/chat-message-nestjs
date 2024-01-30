@@ -22,7 +22,7 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async hashPassword(password: string): Promise<string> {
+  hashPassword(password: string) {
     const saltRounds = 10;
     const salt = bcrypt.genSaltSync(saltRounds);
     return bcrypt.hashSync(password, salt);
@@ -94,7 +94,7 @@ export class AuthService {
     }
 
     // hash password
-    const passwordHash = await this.hashPassword(password);
+    const passwordHash = this.hashPassword(password);
 
     const payload = { email };
     const accessToken = await this.getToken(payload);

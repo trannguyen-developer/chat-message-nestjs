@@ -1,12 +1,11 @@
+import { ResetPassword } from 'src/reset-password/reset-password.entity';
 import { VerifyEmail } from 'src/verify-email/verify-email.entity';
 import {
   Column,
-  CreateDateColumn,
   Entity,
   JoinColumn,
   OneToOne,
   PrimaryGeneratedColumn,
-  UpdateDateColumn,
 } from 'typeorm';
 
 @Entity()
@@ -28,6 +27,11 @@ export class User {
   @OneToOne(() => VerifyEmail, { cascade: true, eager: true })
   @JoinColumn({ name: 'verify_id', referencedColumnName: 'id' })
   verify: VerifyEmail;
+
+  @OneToOne(() => ResetPassword, { cascade: true, eager: true })
+  @JoinColumn({ name: 'reset_pw_id', referencedColumnName: 'id' })
+  resetPW: ResetPassword;
+
   @Column({
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP(6)',

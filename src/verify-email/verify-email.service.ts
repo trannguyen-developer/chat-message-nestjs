@@ -13,6 +13,7 @@ import { User } from 'src/auth/user.entity';
 import { Response } from 'express';
 import { MailService } from 'src/mail/mail.service';
 import { HelpersService } from 'src/helpers/helpers.service';
+import { randomBytes } from 'crypto';
 
 @Injectable()
 export class VerifyEmailService {
@@ -125,7 +126,6 @@ export class VerifyEmailService {
         );
 
       const expirationTime = new Date(user.verify.expired_time); // Thay thế bằng thời gian hết hạn thực tế của bạn
-
       const isExpired = this.helpersServices.isExpired(expirationTime);
 
       if (isExpired) {
