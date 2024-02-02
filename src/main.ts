@@ -18,7 +18,9 @@ async function bootstrap() {
           property: error.property,
           message: error.constraints[Object.keys(error.constraints)[0]],
         }));
-        return new BadRequestException(result);
+        return new BadRequestException(
+          result?.[0]?.message || 'Something went wrong!',
+        );
       },
       stopAtFirstError: true,
     }),

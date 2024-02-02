@@ -60,7 +60,7 @@ export class VerifyEmailService {
     }
   }
 
-  async getVerifyCode(verifyCodeDto: VerifyCodeDTO, res: Response) {
+  async getVerifyCode(verifyCodeDto: VerifyCodeDTO, res?: Response) {
     try {
       const findUser = await this.usersRepository.findOneBy({
         email: verifyCodeDto.email,

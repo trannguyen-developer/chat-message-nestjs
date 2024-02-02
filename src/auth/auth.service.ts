@@ -12,7 +12,13 @@ import * as bcrypt from 'bcrypt';
 import { SignInDto } from 'src/auth/dto/signin.dto';
 import { Response } from 'express';
 import { JwtService, JwtSignOptions } from '@nestjs/jwt';
-import { expiresTimeRefreshToken, jwtConstants } from 'src/auth/constants';
+import {
+  expiresTimeAccessToken,
+  expiresTimeRefreshToken,
+  jwtConstants,
+} from 'src/auth/constants';
+import { MailService } from 'src/mail/mail.service';
+import { VerifyEmailService } from 'src/verify-email/verify-email.service';
 
 @Injectable()
 export class AuthService {
@@ -20,6 +26,8 @@ export class AuthService {
     @InjectRepository(User)
     private usersRepository: Repository<User>,
     private jwtService: JwtService,
+    private mailServices: MailService,
+    private verifyEmailService: VerifyEmailService,
   ) {}
 
   hashPassword(password: string) {
@@ -73,57 +81,84 @@ export class AuthService {
       { access_token: accessToken, refresh_token: refreshToken },
     );
 
-    res.json({
-      success: true,
-      data: {
-        access_token: accessToken,
-        refresh_token: refreshToken,
-      },
-    });
-  }
-
-  async signUp(userCreateDTO: CreateUserDto, res?: Response) {
-    const { email, username, password } = userCreateDTO;
-
-    const emailExist = await this.usersRepository.findOne({
+    const user = await this.usersRepository.findOne({
       where: { email },
     });
 
-    if (emailExist) {
-      throw new HttpException('Username existed', HttpStatus.CONFLICT);
+    if (user.is_verify) {
+      res.json({
+        success: true,
+        data: {
+          access_token: accessToken,
+          refresh_token: refreshToken,
+          is_verify: user.is_verify,
+        },
+      });
+    } else {
+      await this.verifyEmailService.getVerifyCode({ email }, res);
+
+      res.json({
+        success: true,
+        data: {
+          is_verify: user.is_verify,
+        },
+      });
     }
+  }
 
-    // hash password
-    const passwordHash = this.hashPassword(password);
+  async signUp(userCreateDTO: CreateUserDto, res?: Response) {
+    try {
+      const { email, username, password, confirmPassword } = userCreateDTO;
 
-    const payload = { email };
-    const accessToken = await this.getToken(payload);
-    const refreshToken = await this.getToken(payload, {
-      expiresIn: expiresTimeRefreshToken,
-    });
+      const emailExist = await this.usersRepository.findOne({
+        where: { email },
+      });
 
-    // await this.mailServices.sendMail({
-    //   toEmail: userCreateDTO.email,
-    //   subject: 'Welcome to my website',
-    //   template: './welcome',
-    //   context: {
-    //     name: userCreateDTO.username,
-    //   },
-    // });
+      if (confirmPassword !== password) {
+        return res
+          .status(HttpStatus.BAD_REQUEST)
+          .json({ success: false, message: 'Confirm password not correct!' });
+      }
 
-    const user = await this.usersRepository.create({
-      email,
-      username,
-      password: passwordHash,
-      access_token: accessToken,
-      refresh_token: refreshToken,
-    });
+      if (emailExist) {
+        return res
+          .status(HttpStatus.CONFLICT)
+          .json({ success: false, message: 'Username existed' });
+      }
 
-    await this.usersRepository.save(user);
-    res.json({
-      success: true,
-      data: user,
-    });
+      // hash password
+      const passwordHash = this.hashPassword(password);
+
+      const payload = { email };
+      const accessToken = await this.getToken(payload, {
+        expiresIn: expiresTimeAccessToken,
+      });
+      const refreshToken = await this.getToken(payload, {
+        expiresIn: expiresTimeRefreshToken,
+      });
+
+      const user = this.usersRepository.create({
+        email,
+        username,
+        password: passwordHash,
+        access_token: accessToken,
+        refresh_token: refreshToken,
+      });
+
+      await this.usersRepository.save(user);
+      res.json({
+        success: true,
+        data: user,
+      });
+
+      await this.verifyEmailService.getVerifyCode({ email }, res);
+    } catch (error) {
+      throw new HttpException(
+        'Internal server error',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        error,
+      );
+    }
   }
 
   async refreshToken(refreshToken: string) {
