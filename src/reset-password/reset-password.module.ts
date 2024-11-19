@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 import { ResetPasswordService } from './reset-password.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from 'src/auth/user.entity';
+import { User } from '../auth/user.entity';
 import { ResetPassword } from './reset-password.entity';
 import { ResetPasswordController } from './reset-password.controller';
-import { MailModule } from 'src/mail/mail.module';
-import { HelpersModule } from 'src/helpers/helpers.module';
-import { AuthModule } from 'src/auth/auth.module';
+import { MailModule } from '../mail/mail.module';
+import { HelpersModule } from '../helpers/helpers.module';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [

@@ -3,9 +3,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { VerifyEmail } from './verify-email.entity';
 import { VerifyEmailService } from './verify-email.service';
 import { VerifyEmailController } from './verify-email.controller';
-import { User } from 'src/auth/user.entity';
-import { MailModule } from 'src/mail/mail.module';
-import { HelpersModule } from 'src/helpers/helpers.module';
+import { User } from '../auth/user.entity';
+import { MailModule } from '../mail/mail.module';
+import { HelpersModule } from '../helpers/helpers.module';
 
 @Module({
   imports: [

@@ -8,8 +8,8 @@ import { expiresTimeAccessToken, jwtConstants } from './constants';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './jwt.strategy';
 import { LocalStrategy } from './local.strategy';
-import { MailModule } from 'src/mail/mail.module';
-import { VerifyEmailModule } from 'src/verify-email/verify-email.module';
+import { MailModule } from '../mail/mail.module';
+import { VerifyEmailModule } from '../verify-email/verify-email.module';
 
 @Module({
   imports: [

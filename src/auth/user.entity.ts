@@ -1,5 +1,5 @@
-import { ResetPassword } from 'src/reset-password/reset-password.entity';
-import { VerifyEmail } from 'src/verify-email/verify-email.entity';
+import { ResetPassword } from '../reset-password/reset-password.entity';
+import { VerifyEmail } from '../verify-email/verify-email.entity';
 import {
   Column,
   Entity,

@@ -2,13 +2,13 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ResetPasswordDTO, SendEmailDTO } from './dto/reset-password';
 import { randomBytes } from 'crypto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { MailService } from 'src/mail/mail.service';
+import { MailService } from '../mail/mail.service';
 import { Repository } from 'typeorm/repository/Repository';
-import { User } from 'src/auth/user.entity';
+import { User } from '../auth/user.entity';
 import { ResetPassword } from './reset-password.entity';
 import { Response } from 'express';
-import { HelpersService } from 'src/helpers/helpers.service';
-import { AuthService } from 'src/auth/auth.service';
+import { HelpersService } from '../helpers/helpers.service';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable()
 export class ResetPasswordService {

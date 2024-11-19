@@ -9,10 +9,10 @@ import { VerifyEmail } from './verify-email.entity';
 import { DataSource, Repository } from 'typeorm';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { SendVerifyCodeDTO, VerifyCodeDTO } from './dto/verify-email.dto';
-import { User } from 'src/auth/user.entity';
+import { User } from '../auth/user.entity';
 import { Response } from 'express';
-import { MailService } from 'src/mail/mail.service';
-import { HelpersService } from 'src/helpers/helpers.service';
+import { MailService } from '../mail/mail.service';
+import { HelpersService } from '../helpers/helpers.service';
 import { randomBytes } from 'crypto';
 
 @Injectable()

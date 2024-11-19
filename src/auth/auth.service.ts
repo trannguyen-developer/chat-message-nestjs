@@ -6,19 +6,19 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from 'src/auth/user.entity';
-import { CreateUserDto } from 'src/auth/dto/create-user.dto';
+import { User } from '../auth/user.entity';
+import { CreateUserDto } from '../auth/dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
-import { SignInDto } from 'src/auth/dto/signin.dto';
+import { SignInDto } from '../auth/dto/signin.dto';
 import { Response } from 'express';
 import { JwtService, JwtSignOptions } from '@nestjs/jwt';
 import {
   expiresTimeAccessToken,
   expiresTimeRefreshToken,
   jwtConstants,
-} from 'src/auth/constants';
-import { MailService } from 'src/mail/mail.service';
-import { VerifyEmailService } from 'src/verify-email/verify-email.service';
+} from '../auth/constants';
+import { MailService } from '../mail/mail.service';
+import { VerifyEmailService } from '../verify-email/verify-email.service';
 
 @Injectable()
 export class AuthService {
