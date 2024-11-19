@@ -1,6 +1,36 @@
 {
   "version": 2,
 
+  "env": {
+    "PORT": "@port",
+    "DATABASE_TYPE": "@database_type",
+    "DATABASE_HOST": "@database_host",
+    "DATABASE_PORT": "@database_port",
+    "DATABASE_USERNAME": "@database_username",
+    "DATABASE_PASSWORD": "@database_password",
+    "DATABASE_NAME": "@database_name",
+    "MAIL_HOST": "@mail_host",
+    "MAIL_USER": "@mail_user",
+    "MAIL_PASSWORD": "@mail_password",
+    "MAIL_FROM": "@mail_from",
+    "MAIL_TRANSPORT": "@mail_transport"
+  },
+
+  "build": {
+    "PORT": "@port",
+    "DATABASE_TYPE": "@database_type",
+    "DATABASE_HOST": "@database_host",
+    "DATABASE_PORT": "@database_port",
+    "DATABASE_USERNAME": "@database_username",
+    "DATABASE_PASSWORD": "@database_password",
+    "DATABASE_NAME": "@database_name",
+    "MAIL_HOST": "@mail_host",
+    "MAIL_USER": "@mail_user",
+    "MAIL_PASSWORD": "@mail_password",
+    "MAIL_FROM": "@mail_from",
+    "MAIL_TRANSPORT": "@mail_transport"
+  },
+
   "builds": [
     {
       "src": "src/main.ts",
