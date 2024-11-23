@@ -10,6 +10,7 @@ import { JwtStrategy } from './jwt.strategy';
 import { LocalStrategy } from './local.strategy';
 import { MailModule } from '../mail/mail.module';
 import { VerifyEmailModule } from '../verify-email/verify-email.module';
+import { RedisModule } from 'src/redis/redis.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { VerifyEmailModule } from '../verify-email/verify-email.module';
       signOptions: { expiresIn: expiresTimeAccessToken },
     }),
     MailModule,
+    RedisModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, LocalStrategy, JwtStrategy],

@@ -95,7 +95,7 @@ export class AuthService {
         },
       });
     } else {
-      await this.verifyEmailService.getVerifyCode({ email }, res);
+      await this.verifyEmailService.fetchVerifyCode({ email });
 
       res.json({
         success: true,
@@ -123,7 +123,7 @@ export class AuthService {
       if (emailExist) {
         return res
           .status(HttpStatus.CONFLICT)
-          .json({ success: false, message: 'Username existed' });
+          .json({ success: false, message: 'Email existed' });
       }
 
       // hash password
@@ -151,7 +151,7 @@ export class AuthService {
         data: user,
       });
 
-      await this.verifyEmailService.getVerifyCode({ email }, res);
+      // await this.verifyEmailService.getVerifyCode({ email }, res);
     } catch (error) {
       throw new HttpException(
         'Internal server error',

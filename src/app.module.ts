@@ -11,6 +11,7 @@ import { VerifyEmail } from './verify-email/verify-email.entity';
 import { HelpersModule } from './helpers/helpers.module';
 import { ResetPasswordModule } from './reset-password/reset-password.module';
 import { ResetPassword } from './reset-password/reset-password.entity';
+import { RedisModule } from './redis/redis.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { ResetPassword } from './reset-password/reset-password.entity';
     VerifyEmailModule,
     HelpersModule,
     ResetPasswordModule,
+    RedisModule,
   ],
 })
 export class AppModule {}

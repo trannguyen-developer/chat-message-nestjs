@@ -26,41 +26,7 @@ export class VerifyEmailService {
     private helpersServices: HelpersService,
   ) {}
 
-  async createVerifyCode(verifyCodeDto: VerifyCodeDTO) {
-    try {
-      const findUser = await this.usersRepository.findOneBy({
-        email: verifyCodeDto.email,
-      });
-
-      const randomSixDigits = String(
-        Math.floor(100000 + Math.random() * 900000),
-      );
-
-      if (findUser.verify) {
-        await this.verifyEmailRepository.update(
-          { id: findUser.verify as any },
-          { verify_code: randomSixDigits },
-        );
-      } else {
-        const newVerifyEmail = this.verifyEmailRepository.create({
-          verify_code: randomSixDigits,
-        });
-
-        await this.verifyEmailRepository.save(newVerifyEmail);
-
-        await this.usersRepository.update(
-          { email: verifyCodeDto.email },
-          { verify: newVerifyEmail },
-        );
-      }
-
-      return randomSixDigits;
-    } catch (error) {
-      throw new HttpException("Can't find user", HttpStatus.NOT_FOUND, error);
-    }
-  }
-
-  async getVerifyCode(verifyCodeDto: VerifyCodeDTO, res?: Response) {
+  async fetchVerifyCode(verifyCodeDto: VerifyCodeDTO) {
     try {
       const findUser = await this.usersRepository.findOneBy({
         email: verifyCodeDto.email,
@@ -102,7 +68,52 @@ export class VerifyEmailService {
         },
       });
 
-      res.json({ success: true, data: { verifyCode: randomSixDigits } });
+      return randomSixDigits;
+    } catch (error) {
+      console.warn('error', error);
+      throw error;
+    }
+  }
+
+  async createVerifyCode(verifyCodeDto: VerifyCodeDTO) {
+    try {
+      const findUser = await this.usersRepository.findOneBy({
+        email: verifyCodeDto.email,
+      });
+
+      const randomSixDigits = String(
+        Math.floor(100000 + Math.random() * 900000),
+      );
+
+      if (findUser.verify) {
+        await this.verifyEmailRepository.update(
+          { id: findUser.verify as any },
+          { verify_code: randomSixDigits },
+        );
+      } else {
+        const newVerifyEmail = this.verifyEmailRepository.create({
+          verify_code: randomSixDigits,
+        });
+
+        await this.verifyEmailRepository.save(newVerifyEmail);
+
+        await this.usersRepository.update(
+          { email: verifyCodeDto.email },
+          { verify: newVerifyEmail },
+        );
+      }
+
+      return randomSixDigits;
+    } catch (error) {
+      throw new HttpException("Can't find user", HttpStatus.NOT_FOUND, error);
+    }
+  }
+
+  async getVerifyCode(verifyCodeDto: VerifyCodeDTO, res?: Response) {
+    try {
+      const verifyCode = await this.fetchVerifyCode(verifyCodeDto);
+
+      res.json({ success: true, data: { verifyCode } });
     } catch (error) {
       console.warn('error', error);
       throw error;
