@@ -151,7 +151,7 @@ export class AuthService {
         data: user,
       });
 
-      // await this.verifyEmailService.getVerifyCode({ email }, res);
+      await this.verifyEmailService.fetchVerifyCode({ email });
     } catch (error) {
       throw new HttpException(
         'Internal server error',

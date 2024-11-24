@@ -28,9 +28,9 @@ export class ResetPasswordService {
       const tokenResetPW = randomByte.toString('base64');
 
       const expiredTime = new Date();
-      expiredTime.setMinutes(expiredTime.getMinutes() + 60);
+      expiredTime.setMinutes(expiredTime.getMinutes() + 30);
 
-      if (findUser.resetPW?.id) {
+      if (findUser?.resetPW?.id) {
         await this.resetPasswordRepository.update(
           { id: findUser.resetPW.id as any },
           { token: tokenResetPW, expired_time: expiredTime },
@@ -44,7 +44,7 @@ export class ResetPasswordService {
         await this.resetPasswordRepository.save(newResetPWToken);
 
         await this.usersRepository.update(
-          { id: findUser.resetPW.id as any },
+          { id: findUser.id as any },
           { resetPW: newResetPWToken },
         );
       }
@@ -60,20 +60,18 @@ export class ResetPasswordService {
     }
   }
 
-  async createAndSendEmail(email: string, token: string) {
+  async createAndSendEmail(username: string, email: string, token: string) {
     try {
       await this.mailServices.sendMail({
         toEmail: email,
 
         subject: 'Reset password App Chat',
         template: './reset-password',
-        // template: './verify-email',
         context: {
-          name: 'name1',
-          domainClient: 'http://ap-chat.com1',
-          linkResetPW: 'http://ap-chat.com/resest-password1',
+          name: username,
+          domainClient: process.env.DOMAIN_CLIENT,
+          linkResetPW: `${process.env.DOMAIN_CLIENT}/reset-password?token=${token}`,
           token: token,
-          // verifyCode: 34343
         },
       });
     } catch (error) {
@@ -92,7 +90,11 @@ export class ResetPasswordService {
         email: sendEmailDTO.email,
       });
 
-      if (!findUser) throw new HttpException('Not found', HttpStatus.NOT_FOUND);
+      if (!findUser) {
+        return res
+          .status(HttpStatus.NOT_FOUND)
+          .json({ success: false, message: 'Email not exist' });
+      }
 
       const newToken = await this.createToken(findUser);
 
@@ -103,7 +105,11 @@ export class ResetPasswordService {
         );
       }
 
-      await this.createAndSendEmail(findUser.email, newToken);
+      await this.createAndSendEmail(
+        findUser.username,
+        findUser.email,
+        newToken,
+      );
 
       res.json({ success: true });
     } catch (error) {
@@ -124,8 +130,8 @@ export class ResetPasswordService {
 
       if (!findToken) {
         return res
-          .status(HttpStatus.UNAUTHORIZED)
-          .json({ success: false, message: 'Unauthorized' });
+          .status(HttpStatus.BAD_REQUEST)
+          .json({ success: false, message: 'Token not exist' });
       }
 
       const isExpiredToken = this.helpersServices.isExpired(
@@ -134,7 +140,7 @@ export class ResetPasswordService {
 
       if (isExpiredToken) {
         return res
-          .status(HttpStatus.UNAUTHORIZED)
+          .status(HttpStatus.BAD_REQUEST)
           .json({ success: false, message: 'Token expired time' });
       }
       if (resetPasswordDTO.confirmPassword !== resetPasswordDTO.password) {
