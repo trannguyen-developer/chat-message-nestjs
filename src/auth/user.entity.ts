@@ -20,9 +20,9 @@ export class User {
   password: string;
   @Column({ nullable: true, default: false })
   is_verify: boolean;
-  @Column()
+  @Column({ nullable: true, default: false })
   access_token: string;
-  @Column()
+  @Column({ nullable: true })
   refresh_token: string;
   @OneToOne(() => VerifyEmail, { cascade: true, eager: true })
   @JoinColumn({ name: 'verify_id', referencedColumnName: 'id' })

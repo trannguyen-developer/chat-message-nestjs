@@ -19,6 +19,7 @@ import {
 } from '../auth/constants';
 import { MailService } from '../mail/mail.service';
 import { VerifyEmailService } from '../verify-email/verify-email.service';
+import { RedisService } from 'src/redis/redis.service';
 
 @Injectable()
 export class AuthService {
@@ -28,6 +29,7 @@ export class AuthService {
     private jwtService: JwtService,
     private mailServices: MailService,
     private verifyEmailService: VerifyEmailService,
+    private redisService: RedisService,
   ) {}
 
   hashPassword(password: string) {
@@ -62,7 +64,6 @@ export class AuthService {
     if (!user || !check) {
       throw new UnauthorizedException();
     }
-    debugger;
 
     return user;
   }
@@ -86,6 +87,7 @@ export class AuthService {
     });
 
     if (user.is_verify) {
+      await this.redisService.addToken(accessToken);
       res.json({
         success: true,
         data: {
@@ -96,6 +98,8 @@ export class AuthService {
       });
     } else {
       await this.verifyEmailService.fetchVerifyCode({ email });
+
+      await this.redisService.cleanupExpiredTokens();
 
       res.json({
         success: true,
@@ -141,8 +145,8 @@ export class AuthService {
         email,
         username,
         password: passwordHash,
-        access_token: accessToken,
-        refresh_token: refreshToken,
+        // access_token: accessToken,
+        // refresh_token: refreshToken,
       });
 
       await this.usersRepository.save(user);
@@ -161,12 +165,15 @@ export class AuthService {
     }
   }
 
-  async refreshToken(refreshToken: string) {
+  async refreshToken(refreshToken: string, res?: Response) {
     const existingRefreshToken = await this.usersRepository.findOne({
       where: { refresh_token: refreshToken },
     });
     if (!existingRefreshToken) {
-      throw new HttpException('Not found refresh_token', HttpStatus.NOT_FOUND);
+      res.status(HttpStatus.NOT_FOUND).json({
+        success: false,
+        data: 'Not found refresh_token',
+      });
     }
 
     // Xác minh refreshToken
@@ -176,19 +183,43 @@ export class AuthService {
         secret: jwtConstants.secret,
       });
     } catch (error) {
-      throw new HttpException(
-        "Can't decode refreshToken",
-        HttpStatus.FORBIDDEN,
-      );
+      res.status(HttpStatus.FORBIDDEN).json({
+        success: false,
+        data: "Can't decode refreshToken",
+      });
     }
 
     // create new access token
-    const newAccessToken = await this.getToken(payloadToken);
+    const newAccessToken = await this.getToken({ email: payloadToken?.email });
 
     // save new token in database
     await this.usersRepository.update(
       { refresh_token: refreshToken },
       { access_token: newAccessToken },
     );
+    await this.redisService.addToken(newAccessToken);
+    return res.json({ success: true, data: { access_token: newAccessToken } });
+  }
+
+  async logout(userId: string, authorization: string) {
+    try {
+      await this.usersRepository
+        .createQueryBuilder()
+        .update(User)
+        .set({ refresh_token: null })
+        .where('id = :id', { id: userId })
+        .execute();
+
+      const token = authorization.split(' ')?.[1];
+      await this.redisService.removeToken(token);
+      await this.redisService.cleanupExpiredTokens();
+    } catch (error) {
+      console.log('error', error);
+      throw new HttpException(
+        'Internal server error',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        error,
+      );
+    }
   }
 }

@@ -71,7 +71,6 @@ export class ResetPasswordService {
           name: username,
           domainClient: process.env.DOMAIN_CLIENT,
           linkResetPW: `${process.env.DOMAIN_CLIENT}/reset-password?token=${token}`,
-          token: token,
         },
       });
     } catch (error) {

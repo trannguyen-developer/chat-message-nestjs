@@ -14,4 +14,9 @@ export class UserController {
   getInfo(@Headers('authorization') authorization) {
     return this.userService.getInfo(authorization);
   }
+
+  @Get('my-info')
+  getMyInfo(@Headers('authorization') authorization) {
+    return this.userService.getInfo(authorization);
+  }
 }

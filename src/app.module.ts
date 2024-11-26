@@ -12,6 +12,9 @@ import { HelpersModule } from './helpers/helpers.module';
 import { ResetPasswordModule } from './reset-password/reset-password.module';
 import { ResetPassword } from './reset-password/reset-password.entity';
 import { RedisModule } from './redis/redis.module';
+import { UserController } from './user/user.controller';
+import { ScheduleModule } from '@nestjs/schedule';
+import { TokenCleanupService } from './cron-job/tokenCleanupService';
 
 @Module({
   imports: [
@@ -26,6 +29,7 @@ import { RedisModule } from './redis/redis.module';
       entities: [User, VerifyEmail, ResetPassword],
       synchronize: true,
     }),
+    ScheduleModule.forRoot(),
     MailModule,
     PassportModule,
     AuthModule,
@@ -35,5 +39,7 @@ import { RedisModule } from './redis/redis.module';
     ResetPasswordModule,
     RedisModule,
   ],
+  controllers: [UserController],
+  providers: [TokenCleanupService],
 })
 export class AppModule {}

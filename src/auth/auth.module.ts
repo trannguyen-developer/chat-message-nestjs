@@ -11,6 +11,8 @@ import { LocalStrategy } from './local.strategy';
 import { MailModule } from '../mail/mail.module';
 import { VerifyEmailModule } from '../verify-email/verify-email.module';
 import { RedisModule } from 'src/redis/redis.module';
+import { AuthenticationGuard } from './guards/auth.guard';
+import { RedisService } from 'src/redis/redis.service';
 
 @Module({
   imports: [
@@ -26,7 +28,14 @@ import { RedisModule } from 'src/redis/redis.module';
     RedisModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, LocalStrategy, JwtStrategy],
+  providers: [
+    AuthService,
+    LocalStrategy,
+    JwtStrategy,
+    RedisModule,
+    RedisService,
+    AuthenticationGuard,
+  ],
   exports: [AuthService],
 })
 export class AuthModule {}

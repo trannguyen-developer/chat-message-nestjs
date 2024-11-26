@@ -22,7 +22,7 @@ export class UserService {
 
       const { id, email, username } = user;
 
-      return { success: true, data: { id, email, username } };
+      return { success: true, data: { userId: id, email, username } };
     } catch (error) {
       throw new HttpException('Username not found', HttpStatus.NOT_FOUND);
     }
