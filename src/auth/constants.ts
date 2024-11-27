@@ -4,9 +4,9 @@ export const jwtConstants = {
 };
 
 export const expiresTimeRefreshToken = '7d';
-// export const expiresTimeAccessToken = '30m';
-export const expiresTimeAccessToken = '30s';
-export const expiresTimeAccessTokenMiniSeconds = 10 * 1000; // expires in 15 minutes
-// export const expiresTimeAccessTokenMiniSeconds = 15 * 60 * 1000; // expires in 15 minutes
+export const expiresTimeAccessToken = '30m';
+// export const expiresTimeAccessToken = '30s';
+export const expiresTimeAccessTokenMiniSeconds = 15 * 60 * 1000; // expires in 15 minutes
+// export const expiresTimeAccessTokenMiniSeconds = 10 * 1000;
 
 export const accessTokensInRedis = 'accessTokensInRedis';

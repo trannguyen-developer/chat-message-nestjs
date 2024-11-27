@@ -20,9 +20,12 @@ export class UserService {
         email: decodedJwtAccessToken.email,
       });
 
-      const { id, email, username } = user;
+      const { id, email, username, google_name, picture } = user;
 
-      return { success: true, data: { userId: id, email, username } };
+      return {
+        success: true,
+        data: { userId: id, email, username, googleName: google_name, picture },
+      };
     } catch (error) {
       throw new HttpException('Username not found', HttpStatus.NOT_FOUND);
     }

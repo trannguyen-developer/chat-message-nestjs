@@ -16,12 +16,16 @@ export class User {
   email: string;
   @Column({ nullable: true })
   username: string;
-  @Column()
+  @Column({ nullable: true })
   password: string;
   @Column({ nullable: true, default: false })
   is_verify: boolean;
   @Column({ nullable: true, default: false })
-  access_token: string;
+  is_google_account: boolean;
+  @Column({ nullable: true })
+  google_name: string;
+  @Column({ nullable: true })
+  picture: string;
   @Column({ nullable: true })
   refresh_token: string;
   @OneToOne(() => VerifyEmail, { cascade: true, eager: true })
