@@ -220,8 +220,6 @@ export class AuthService {
 
       const { email, verified_email, name, picture } = response.data;
 
-      console.log('response', response);
-
       // check email google verified
       if (!verified_email) {
         return res

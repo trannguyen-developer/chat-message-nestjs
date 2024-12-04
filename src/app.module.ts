@@ -15,6 +15,8 @@ import { RedisModule } from './redis/redis.module';
 import { UserController } from './user/user.controller';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TokenCleanupService } from './cron-job/tokenCleanupService';
+import { ConversationModule } from './conversation/conversation.module';
+import { MessageModule } from './message/message.module';
 
 @Module({
   imports: [
@@ -38,6 +40,8 @@ import { TokenCleanupService } from './cron-job/tokenCleanupService';
     HelpersModule,
     ResetPasswordModule,
     RedisModule,
+    ConversationModule,
+    MessageModule,
   ],
   controllers: [UserController],
   providers: [TokenCleanupService],

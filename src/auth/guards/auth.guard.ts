@@ -11,8 +11,6 @@ import { RedisService } from 'src/redis/redis.service';
 export class AuthenticationGuard extends AuthGuard('jwt') {
   constructor(private readonly redisService: RedisService) {
     super(); // Không được thay đổi hoặc ghi đè redisService ở đây
-
-    console.log('redisService', redisService);
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
