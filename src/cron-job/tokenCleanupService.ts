@@ -8,8 +8,6 @@ export class TokenCleanupService {
 
   @Cron('0 0 */3 * *') // Chạy 3 ngày 1 lần vào lúc 12h sáng
   cleanupExpiredTokens() {
-    console.log('cron job running');
-
     this.redisService.cleanupExpiredTokens(); // Tạo hàm dọn dẹp token hết hạn
   }
 }

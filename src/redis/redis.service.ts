@@ -11,8 +11,8 @@ export class RedisService {
 
   constructor() {
     this.client = new Redis({
-      host: '127.0.0.1', // Địa chỉ Redis
-      port: 6379, // Cổng Redis
+      host: process.env.REDIS_HOST, // Địa chỉ Redis
+      port: Number(process.env.REDIS_PORT), // Cổng Redis
       password: '', // Nếu Redis có mật khẩu
     });
   }

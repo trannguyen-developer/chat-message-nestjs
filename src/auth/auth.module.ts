@@ -13,11 +13,23 @@ import { VerifyEmailModule } from '../verify-email/verify-email.module';
 import { RedisModule } from 'src/redis/redis.module';
 import { AuthenticationGuard } from './guards/auth.guard';
 import { RedisService } from 'src/redis/redis.service';
+import { UserProfile } from 'src/user-profile/entities/user-profile.entity';
+import { GoogleAccount } from 'src/google-account/entities/google-account.entity';
+import { ResetPassword } from 'src/reset-password/reset-password.entity';
+import { VerifyEmail } from 'src/verify-email/verify-email.entity';
+import { UserProfileModule } from 'src/user-profile/user-profile.module';
+import { GoogleAccountModule } from 'src/google-account/google-account.module';
 
 @Module({
   imports: [
     PassportModule,
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([
+      User,
+      UserProfile,
+      GoogleAccount,
+      ResetPassword,
+      VerifyEmail,
+    ]),
     VerifyEmailModule,
     JwtModule.register({
       global: true,
@@ -26,6 +38,8 @@ import { RedisService } from 'src/redis/redis.service';
     }),
     MailModule,
     RedisModule,
+    UserProfileModule,
+    GoogleAccountModule,
   ],
   controllers: [AuthController],
   providers: [

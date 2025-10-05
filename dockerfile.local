@@ -1,0 +1,14 @@
+FROM node:20-alpine
+
+WORKDIR /usr/src/app
+
+# Copy riêng package.json và cài đặt dependencies bên trong container
+COPY package*.json ./
+RUN yarn
+
+# Copy toàn bộ code (sau khi cài npm)
+COPY . .
+
+EXPOSE 5555
+
+CMD ["npm", "run", "start:dev"]

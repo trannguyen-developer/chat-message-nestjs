@@ -51,7 +51,7 @@ export class ResetPasswordService {
 
       return tokenResetPW;
     } catch (error) {
-      console.log('error', error);
+      console.error('error', error);
       throw new HttpException(
         'Internal server error',
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -74,7 +74,7 @@ export class ResetPasswordService {
         },
       });
     } catch (error) {
-      console.log('error', error);
+      console.error('error', error);
       throw new HttpException(
         'Internal server error',
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -105,14 +105,14 @@ export class ResetPasswordService {
       }
 
       await this.createAndSendEmail(
-        findUser.username,
+        findUser.profile.username,
         findUser.email,
         newToken,
       );
 
       res.json({ success: true });
     } catch (error) {
-      console.log('error', error);
+      console.error('error', error);
       throw new HttpException(
         'Internal server error',
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -159,7 +159,7 @@ export class ResetPasswordService {
 
       res.json({ success: true, message: 'Reset password success!' });
     } catch (error) {
-      console.log('error', error);
+      console.error('error', error);
       throw new HttpException(
         'Internal server error',
         HttpStatus.INTERNAL_SERVER_ERROR,

@@ -8,15 +8,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../auth/user.entity';
 import { CreateUserDto } from '../auth/dto/create-user.dto';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import { SignInDto } from '../auth/dto/signin.dto';
 import { Response } from 'express';
 import { JwtService, JwtSignOptions } from '@nestjs/jwt';
-import {
-  expiresTimeAccessToken,
-  expiresTimeRefreshToken,
-  jwtConstants,
-} from '../auth/constants';
+import { expiresTimeRefreshToken, jwtConstants } from '../auth/constants';
 import { MailService } from '../mail/mail.service';
 import { VerifyEmailService } from '../verify-email/verify-email.service';
 import { RedisService } from 'src/redis/redis.service';
@@ -134,19 +130,32 @@ export class AuthService {
       // hash password
       const passwordHash = this.hashPassword(password);
 
+      const { verifyCode, expiredTime } =
+        this.verifyEmailService.renderVerifyCode();
+
       const user = this.usersRepository.create({
         email,
-        username,
+        profile: { username },
         password: passwordHash,
+        verify: { verify_code: verifyCode, expired_time: expiredTime },
       });
 
       await this.usersRepository.save(user);
+
+      await this.mailServices.sendMail({
+        toEmail: email,
+        subject: 'Verify email',
+        template: './verify-email',
+        context: {
+          name: username,
+          verifyCode,
+        },
+      });
+
       res.json({
         success: true,
         data: user,
       });
-
-      await this.verifyEmailService.fetchVerifyCode({ email });
     } catch (error) {
       throw new HttpException(
         'Internal server error',
@@ -200,7 +209,7 @@ export class AuthService {
       await this.redisService.removeToken(token);
       await this.redisService.cleanupExpiredTokens();
     } catch (error) {
-      console.log('error', error);
+      console.error('error', error);
       throw new HttpException(
         'Internal server error',
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -219,8 +228,6 @@ export class AuthService {
       );
 
       const { email, verified_email, name, picture } = response.data;
-
-      console.log('response', response);
 
       // check email google verified
       if (!verified_email) {
@@ -243,9 +250,11 @@ export class AuthService {
       if (!emailExist) {
         const user = this.usersRepository.create({
           email,
-          google_name: name,
           is_google_account: true,
-          picture,
+          googleAccount: {
+            google_name: name,
+            picture,
+          },
         });
         await this.usersRepository.save(user);
       }
@@ -267,8 +276,10 @@ export class AuthService {
           {
             refresh_token: refreshToken,
             is_google_account: true,
-            google_name: name,
-            picture,
+            googleAccount: {
+              google_name: name,
+              picture,
+            },
           },
         );
       }
