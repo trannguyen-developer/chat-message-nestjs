@@ -1,13 +1,7 @@
 import { UserProfile } from 'src/user-profile/entities/user-profile.entity';
 import { ResetPassword } from '../reset-password/reset-password.entity';
 import { VerifyEmail } from '../verify-email/verify-email.entity';
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  OneToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { GoogleAccount } from 'src/google-account/entities/google-account.entity';
 
 @Entity('users')

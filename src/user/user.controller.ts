@@ -3,7 +3,6 @@ import {
   Get,
   Headers,
   Query,
-  Req,
   Res,
   UseGuards,
 } from '@nestjs/common';
