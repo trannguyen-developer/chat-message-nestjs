@@ -30,7 +30,7 @@ export class VerifyEmailService {
 
       return { verifyCode: randomSixDigits, expiredTime: expiredTime };
     } catch (error) {
-      console.warn('error', error);
+      console.error('error', error);
       throw error;
     }
   }
@@ -63,7 +63,7 @@ export class VerifyEmailService {
 
       return { verifyCode, expiredTime: expiredTime };
     } catch (error) {
-      console.warn('error', error);
+      console.error('error', error);
       throw error;
     }
   }
@@ -74,7 +74,7 @@ export class VerifyEmailService {
 
       res.json({ success: true, data: { verifyCode } });
     } catch (error) {
-      console.warn('error', error);
+      console.error('error', error);
       throw error;
     }
   }
