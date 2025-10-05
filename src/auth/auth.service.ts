@@ -108,8 +108,6 @@ export class AuthService {
   }
 
   async signUp(userCreateDTO: CreateUserDto, res?: Response) {
-    console.log('test 1 1 1 22');
-
     try {
       const { email, username, password, confirmPassword } = userCreateDTO;
 
@@ -211,7 +209,7 @@ export class AuthService {
       await this.redisService.removeToken(token);
       await this.redisService.cleanupExpiredTokens();
     } catch (error) {
-      console.log('error', error);
+      console.error('error', error);
       throw new HttpException(
         'Internal server error',
         HttpStatus.INTERNAL_SERVER_ERROR,

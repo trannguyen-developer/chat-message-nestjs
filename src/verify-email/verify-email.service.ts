@@ -44,8 +44,6 @@ export class VerifyEmailService {
 
       const { verifyCode, expiredTime } = this.renderVerifyCode();
 
-      console.log('verifyEmail', verifyEmail);
-
       if (verifyEmail?.user.id) {
         await this.verifyEmailRepository.update(
           { user: { id: verifyEmail?.user.id } },
@@ -114,7 +112,7 @@ export class VerifyEmailService {
 
       res.json({ success: true, message: 'Verify email success' });
     } catch (error) {
-      console.log('error', error);
+      console.error('error', error);
       throw error;
     }
   }

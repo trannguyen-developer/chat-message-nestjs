@@ -17,17 +17,23 @@ export class UserService {
     const decodedJwtAccessToken = this.jwtService.decode(token);
 
     try {
-      const user = await this.usersRepository.findOneBy({
-        email: decodedJwtAccessToken.email,
+      const user = await this.usersRepository.findOne({
+        relations: ['profile', 'googleAccount'],
+        where: { email: decodedJwtAccessToken.email },
       });
 
       const { id, email, profile, googleAccount } = user;
       const username = profile.username;
-      const { google_name, picture } = googleAccount;
 
       return {
         success: true,
-        data: { userId: id, email, username, googleName: google_name, picture },
+        data: {
+          userId: id,
+          email,
+          username,
+          googleName: googleAccount?.google_name,
+          picture: googleAccount?.picture,
+        },
       };
     } catch (error) {
       throw new HttpException('Username not found', HttpStatus.NOT_FOUND);
@@ -54,8 +60,6 @@ export class UserService {
           excludedEmail: decodedJwtAccessToken?.email,
         })
         .getMany();
-
-      console.log('decodedJwtAccessToken?.email', decodedJwtAccessToken?.email);
 
       return res.json({ success: true, data: users });
     } catch (error) {
