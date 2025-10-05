@@ -17,6 +17,10 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { TokenCleanupService } from './cron-job/tokenCleanupService';
 import { ConversationModule } from './conversation/conversation.module';
 import { MessageModule } from './message/message.module';
+import { UserProfileModule } from './user-profile/user-profile.module';
+import { GoogleAccountModule } from './google-account/google-account.module';
+import { UserProfile } from './user-profile/entities/user-profile.entity';
+import { GoogleAccount } from './google-account/entities/google-account.entity';
 
 @Module({
   imports: [
@@ -28,7 +32,8 @@ import { MessageModule } from './message/message.module';
       username: process.env.DATABASE_USERNAME,
       password: process.env.DATABASE_PASSWORD,
       database: process.env.DATABASE_NAME,
-      entities: [User, VerifyEmail, ResetPassword],
+      entities: [User, VerifyEmail, ResetPassword, UserProfile, GoogleAccount],
+      autoLoadEntities: true,
       synchronize: true,
     }),
     ScheduleModule.forRoot(),
@@ -42,6 +47,8 @@ import { MessageModule } from './message/message.module';
     RedisModule,
     ConversationModule,
     MessageModule,
+    UserProfileModule,
+    GoogleAccountModule,
   ],
   controllers: [UserController],
   providers: [TokenCleanupService],

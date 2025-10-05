@@ -63,7 +63,7 @@ export class VerifyEmailService {
         subject: 'Verify email',
         template: './verify-email',
         context: {
-          name: findUser.username,
+          name: findUser.profile.username,
           verifyCode: randomSixDigits,
         },
       });

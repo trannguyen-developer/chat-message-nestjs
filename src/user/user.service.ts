@@ -21,7 +21,9 @@ export class UserService {
         email: decodedJwtAccessToken.email,
       });
 
-      const { id, email, username, google_name, picture } = user;
+      const { id, email, profile, googleAccount } = user;
+      const username = profile.username;
+      const { google_name, picture } = googleAccount;
 
       return {
         success: true,

@@ -8,7 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../auth/user.entity';
 import { CreateUserDto } from '../auth/dto/create-user.dto';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import { SignInDto } from '../auth/dto/signin.dto';
 import { Response } from 'express';
 import { JwtService, JwtSignOptions } from '@nestjs/jwt';
@@ -112,6 +112,8 @@ export class AuthService {
   }
 
   async signUp(userCreateDTO: CreateUserDto, res?: Response) {
+    console.log('test 1 1 1 22');
+
     try {
       const { email, username, password, confirmPassword } = userCreateDTO;
 
@@ -136,7 +138,7 @@ export class AuthService {
 
       const user = this.usersRepository.create({
         email,
-        username,
+        profile: { username },
         password: passwordHash,
       });
 
@@ -241,9 +243,11 @@ export class AuthService {
       if (!emailExist) {
         const user = this.usersRepository.create({
           email,
-          google_name: name,
           is_google_account: true,
-          picture,
+          googleAccount: {
+            google_name: name,
+            picture,
+          },
         });
         await this.usersRepository.save(user);
       }
@@ -265,8 +269,10 @@ export class AuthService {
           {
             refresh_token: refreshToken,
             is_google_account: true,
-            google_name: name,
-            picture,
+            googleAccount: {
+              google_name: name,
+              picture,
+            },
           },
         );
       }

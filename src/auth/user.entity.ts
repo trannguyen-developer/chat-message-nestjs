@@ -1,3 +1,4 @@
+import { UserProfile } from 'src/user-profile/entities/user-profile.entity';
 import { ResetPassword } from '../reset-password/reset-password.entity';
 import { VerifyEmail } from '../verify-email/verify-email.entity';
 import {
@@ -7,34 +8,41 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { GoogleAccount } from 'src/google-account/entities/google-account.entity';
 
 @Entity('users')
 export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
-  @Column({ unique: true, nullable: true })
+  @Column({ unique: true })
   email: string;
-  @Column({ nullable: true })
-  username: string;
-  @Column({ nullable: true })
+  @Column()
   password: string;
   @Column({ nullable: true, default: false })
   is_verify: boolean;
   @Column({ nullable: true, default: false })
   is_google_account: boolean;
   @Column({ nullable: true })
-  google_name: string;
-  @Column({ nullable: true })
-  picture: string;
-  @Column({ nullable: true })
   refresh_token: string;
-  @OneToOne(() => VerifyEmail, { cascade: true, eager: true })
-  @JoinColumn({ name: 'verify_id', referencedColumnName: 'id' })
+  // @OneToOne(() => VerifyEmail, { cascade: true, eager: true })
+  // @JoinColumn({ name: 'verify_id', referencedColumnName: 'id' })
+  // verify: VerifyEmail;
+
+  @OneToOne(() => UserProfile, (profile) => profile.user)
+  profile: UserProfile;
+
+  @OneToOne(() => VerifyEmail, (verifyEmail) => verifyEmail.user)
   verify: VerifyEmail;
 
-  @OneToOne(() => ResetPassword, { cascade: true, eager: true })
-  @JoinColumn({ name: 'reset_pw_id', referencedColumnName: 'id' })
+  // @OneToOne(() => ResetPassword, { cascade: true, eager: true })
+  // @JoinColumn({ name: 'reset_pw_id', referencedColumnName: 'id' })
+  // resetPW: ResetPassword;
+
+  @OneToOne(() => ResetPassword, (resetPassword) => resetPassword.user)
   resetPW: ResetPassword;
+
+  @OneToOne(() => ResetPassword, (resetPassword) => resetPassword.user)
+  googleAccount: GoogleAccount;
 
   @Column({
     type: 'timestamp',

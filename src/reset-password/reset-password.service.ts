@@ -105,7 +105,7 @@ export class ResetPasswordService {
       }
 
       await this.createAndSendEmail(
-        findUser.username,
+        findUser.profile.username,
         findUser.email,
         newToken,
       );
