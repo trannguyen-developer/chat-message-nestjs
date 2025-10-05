@@ -12,11 +12,7 @@ import * as bcrypt from 'bcryptjs';
 import { SignInDto } from '../auth/dto/signin.dto';
 import { Response } from 'express';
 import { JwtService, JwtSignOptions } from '@nestjs/jwt';
-import {
-  expiresTimeAccessToken,
-  expiresTimeRefreshToken,
-  jwtConstants,
-} from '../auth/constants';
+import { expiresTimeRefreshToken, jwtConstants } from '../auth/constants';
 import { MailService } from '../mail/mail.service';
 import { VerifyEmailService } from '../verify-email/verify-email.service';
 import { RedisService } from 'src/redis/redis.service';
@@ -136,19 +132,32 @@ export class AuthService {
       // hash password
       const passwordHash = this.hashPassword(password);
 
+      const { verifyCode, expiredTime } =
+        this.verifyEmailService.renderVerifyCode();
+
       const user = this.usersRepository.create({
         email,
         profile: { username },
         password: passwordHash,
+        verify: { verify_code: verifyCode, expired_time: expiredTime },
       });
 
       await this.usersRepository.save(user);
+
+      await this.mailServices.sendMail({
+        toEmail: email,
+        subject: 'Verify email',
+        template: './verify-email',
+        context: {
+          name: username,
+          verifyCode,
+        },
+      });
+
       res.json({
         success: true,
         data: user,
       });
-
-      await this.verifyEmailService.fetchVerifyCode({ email });
     } catch (error) {
       throw new HttpException(
         'Internal server error',
