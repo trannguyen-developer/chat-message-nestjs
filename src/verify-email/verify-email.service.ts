@@ -1,19 +1,12 @@
-import {
-  BadRequestException,
-  HttpException,
-  HttpStatus,
-  Injectable,
-  Res,
-} from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Res } from '@nestjs/common';
 import { VerifyEmail } from './verify-email.entity';
-import { DataSource, Repository } from 'typeorm';
-import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 import { SendVerifyCodeDTO, VerifyCodeDTO } from './dto/verify-email.dto';
 import { User } from '../auth/user.entity';
 import { Response } from 'express';
 import { MailService } from '../mail/mail.service';
 import { HelpersService } from '../helpers/helpers.service';
-import { randomBytes } from 'crypto';
 
 @Injectable()
 export class VerifyEmailService {
@@ -26,12 +19,8 @@ export class VerifyEmailService {
     private helpersServices: HelpersService,
   ) {}
 
-  async fetchVerifyCode(verifyCodeDto: VerifyCodeDTO) {
+  renderVerifyCode() {
     try {
-      const findUser = await this.usersRepository.findOneBy({
-        email: verifyCodeDto.email,
-      });
-
       const randomSixDigits = String(
         Math.floor(100000 + Math.random() * 900000),
       );
@@ -39,83 +28,53 @@ export class VerifyEmailService {
       const expiredTime = new Date();
       expiredTime.setMinutes(expiredTime.getMinutes() + 5);
 
-      if (findUser.verify?.id) {
-        await this.verifyEmailRepository.update(
-          { id: findUser.verify.id },
-          { verify_code: randomSixDigits, expired_time: expiredTime },
-        );
-      } else {
-        const newVerifyEmail = this.verifyEmailRepository.create({
-          verify_code: randomSixDigits,
-          expired_time: expiredTime,
-        });
-
-        await this.verifyEmailRepository.save(newVerifyEmail);
-
-        await this.usersRepository.update(
-          { email: verifyCodeDto.email },
-          { verify: newVerifyEmail },
-        );
-      }
-
-      await this.mailServices.sendMail({
-        toEmail: findUser.email,
-        subject: 'Verify email',
-        template: './verify-email',
-        context: {
-          name: findUser.username,
-          verifyCode: randomSixDigits,
-        },
-      });
-
-      return randomSixDigits;
+      return { verifyCode: randomSixDigits, expiredTime: expiredTime };
     } catch (error) {
-      console.warn('error', error);
+      console.error('error', error);
       throw error;
     }
   }
 
-  async createVerifyCode(verifyCodeDto: VerifyCodeDTO) {
+  async fetchVerifyCode(verifyCodeDto: VerifyCodeDTO) {
     try {
-      const findUser = await this.usersRepository.findOneBy({
-        email: verifyCodeDto.email,
+      const verifyEmail = await this.verifyEmailRepository.findOne({
+        relations: ['user', 'user.profile'],
+        where: { user: { email: verifyCodeDto.email } },
       });
 
-      const randomSixDigits = String(
-        Math.floor(100000 + Math.random() * 900000),
-      );
+      const { verifyCode, expiredTime } = this.renderVerifyCode();
 
-      if (findUser.verify) {
+      if (verifyEmail?.user.id) {
         await this.verifyEmailRepository.update(
-          { id: findUser.verify as any },
-          { verify_code: randomSixDigits },
+          { user: { id: verifyEmail?.user.id } },
+          { verify_code: verifyCode, expired_time: expiredTime },
         );
-      } else {
-        const newVerifyEmail = this.verifyEmailRepository.create({
-          verify_code: randomSixDigits,
+
+        await this.mailServices.sendMail({
+          toEmail: verifyCodeDto.email,
+          subject: 'Verify email',
+          template: './verify-email',
+          context: {
+            name: verifyEmail.user.profile.username,
+            verifyCode,
+          },
         });
-
-        await this.verifyEmailRepository.save(newVerifyEmail);
-
-        await this.usersRepository.update(
-          { email: verifyCodeDto.email },
-          { verify: newVerifyEmail },
-        );
       }
 
-      return randomSixDigits;
+      return { verifyCode, expiredTime: expiredTime };
     } catch (error) {
-      throw new HttpException("Can't find user", HttpStatus.NOT_FOUND, error);
+      console.error('error', error);
+      throw error;
     }
   }
 
   async getVerifyCode(verifyCodeDto: VerifyCodeDTO, res?: Response) {
     try {
-      const verifyCode = await this.fetchVerifyCode(verifyCodeDto);
+      const { verifyCode } = await this.fetchVerifyCode(verifyCodeDto);
 
       res.json({ success: true, data: { verifyCode } });
     } catch (error) {
-      console.warn('error', error);
+      console.error('error', error);
       throw error;
     }
   }
@@ -153,7 +112,7 @@ export class VerifyEmailService {
 
       res.json({ success: true, message: 'Verify email success' });
     } catch (error) {
-      console.log('error', error);
+      console.error('error', error);
       throw error;
     }
   }

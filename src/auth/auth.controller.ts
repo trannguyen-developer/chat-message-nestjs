@@ -7,6 +7,7 @@ import {
   UseGuards,
   Param,
   Headers,
+  Req,
 } from '@nestjs/common';
 import { AuthService } from '../auth/auth.service';
 import { CreateUserDto } from '../auth/dto/create-user.dto';
@@ -27,6 +28,11 @@ export class AuthController {
   @Post('sign-up')
   signUp(@Body() userCreateDTO: CreateUserDto, @Res() res: Response) {
     return this.authService.signUp(userCreateDTO, res);
+  }
+
+  @Post('auth-google')
+  authGoogle(@Req() req: any, @Res() res: Response) {
+    return this.authService.authGoogle(req, res);
   }
 
   @Post('refresh-token')

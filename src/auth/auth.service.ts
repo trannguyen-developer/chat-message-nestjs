@@ -8,18 +8,15 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../auth/user.entity';
 import { CreateUserDto } from '../auth/dto/create-user.dto';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import { SignInDto } from '../auth/dto/signin.dto';
 import { Response } from 'express';
 import { JwtService, JwtSignOptions } from '@nestjs/jwt';
-import {
-  expiresTimeAccessToken,
-  expiresTimeRefreshToken,
-  jwtConstants,
-} from '../auth/constants';
+import { expiresTimeRefreshToken, jwtConstants } from '../auth/constants';
 import { MailService } from '../mail/mail.service';
 import { VerifyEmailService } from '../verify-email/verify-email.service';
 import { RedisService } from 'src/redis/redis.service';
+import axios from 'axios';
 
 @Injectable()
 export class AuthService {
@@ -79,7 +76,7 @@ export class AuthService {
 
     await this.usersRepository.update(
       { email },
-      { access_token: accessToken, refresh_token: refreshToken },
+      { refresh_token: refreshToken },
     );
 
     const user = await this.usersRepository.findOne({
@@ -133,29 +130,32 @@ export class AuthService {
       // hash password
       const passwordHash = this.hashPassword(password);
 
-      const payload = { email };
-      const accessToken = await this.getToken(payload, {
-        expiresIn: expiresTimeAccessToken,
-      });
-      const refreshToken = await this.getToken(payload, {
-        expiresIn: expiresTimeRefreshToken,
-      });
+      const { verifyCode, expiredTime } =
+        this.verifyEmailService.renderVerifyCode();
 
       const user = this.usersRepository.create({
         email,
-        username,
+        profile: { username },
         password: passwordHash,
-        // access_token: accessToken,
-        // refresh_token: refreshToken,
+        verify: { verify_code: verifyCode, expired_time: expiredTime },
       });
 
       await this.usersRepository.save(user);
+
+      await this.mailServices.sendMail({
+        toEmail: email,
+        subject: 'Verify email',
+        template: './verify-email',
+        context: {
+          name: username,
+          verifyCode,
+        },
+      });
+
       res.json({
         success: true,
         data: user,
       });
-
-      await this.verifyEmailService.fetchVerifyCode({ email });
     } catch (error) {
       throw new HttpException(
         'Internal server error',
@@ -192,11 +192,6 @@ export class AuthService {
     // create new access token
     const newAccessToken = await this.getToken({ email: payloadToken?.email });
 
-    // save new token in database
-    await this.usersRepository.update(
-      { refresh_token: refreshToken },
-      { access_token: newAccessToken },
-    );
     await this.redisService.addToken(newAccessToken);
     return res.json({ success: true, data: { access_token: newAccessToken } });
   }
@@ -214,12 +209,94 @@ export class AuthService {
       await this.redisService.removeToken(token);
       await this.redisService.cleanupExpiredTokens();
     } catch (error) {
-      console.log('error', error);
+      console.error('error', error);
       throw new HttpException(
         'Internal server error',
         HttpStatus.INTERNAL_SERVER_ERROR,
         error,
       );
+    }
+  }
+
+  async authGoogle(req, res) {
+    try {
+      const { access_token } = req.body;
+
+      // verify access token google
+      const response: any = await axios.get(
+        `https://www.googleapis.com/oauth2/v1/userinfo?access_token=${access_token}`,
+      );
+
+      const { email, verified_email, name, picture } = response.data;
+
+      // check email google verified
+      if (!verified_email) {
+        return res
+          .status(400)
+          .json({ success: false, message: 'Email google not verified' });
+      }
+
+      const payload = { email };
+      const accessToken = await this.getToken(payload);
+      const refreshToken = await this.getToken(payload, {
+        expiresIn: expiresTimeRefreshToken,
+      });
+
+      const emailExist = await this.usersRepository.findOne({
+        where: { email },
+      });
+
+      // check email not exist
+      if (!emailExist) {
+        const user = this.usersRepository.create({
+          email,
+          is_google_account: true,
+          googleAccount: {
+            google_name: name,
+            picture,
+          },
+        });
+        await this.usersRepository.save(user);
+      }
+
+      // check email exist is google account
+      if (emailExist?.is_google_account) {
+        await this.usersRepository.update(
+          { email },
+          {
+            refresh_token: refreshToken,
+          },
+        );
+      }
+
+      // check email exist not google account
+      if (!emailExist?.is_google_account) {
+        await this.usersRepository.update(
+          { email },
+          {
+            refresh_token: refreshToken,
+            is_google_account: true,
+            googleAccount: {
+              google_name: name,
+              picture,
+            },
+          },
+        );
+      }
+
+      await this.redisService.addToken(accessToken);
+      return res.json({
+        success: true,
+        data: {
+          access_token: accessToken,
+          refresh_token: refreshToken,
+        },
+      });
+    } catch (err) {
+      console.error(err);
+      res
+        .status(500)
+        .json({ success: false, message: 'Authentication failed' });
     }
   }
 }

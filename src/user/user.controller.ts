@@ -1,4 +1,12 @@
-import { Controller, Get, Headers, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Headers,
+  Query,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import { AuthenticationGuard } from '../auth/guards/auth.guard';
 
@@ -18,5 +26,14 @@ export class UserController {
   @Get('my-info')
   getMyInfo(@Headers('authorization') authorization) {
     return this.userService.getInfo(authorization);
+  }
+
+  @Get('search')
+  searchUser(
+    @Headers('authorization') authorization,
+    @Query('search') searchKey,
+    @Res() res,
+  ) {
+    return this.userService.searchUser(authorization, searchKey, res);
   }
 }

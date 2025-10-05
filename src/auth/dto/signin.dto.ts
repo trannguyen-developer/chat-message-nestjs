@@ -1,10 +1,4 @@
-import {
-  IsString,
-  IsDefined,
-  Length,
-  IsNotEmpty,
-  IsEmail,
-} from 'class-validator';
+import { IsString, IsDefined, IsNotEmpty, IsEmail } from 'class-validator';
 
 export class SignInDto {
   @IsDefined()
