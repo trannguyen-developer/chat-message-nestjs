@@ -16,7 +16,6 @@ import { UserController } from './user/user.controller';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TokenCleanupService } from './cron-job/tokenCleanupService';
 import { ConversationModule } from './conversation/conversation.module';
-import { MessageModule } from './message/message.module';
 import { UserProfileModule } from './user-profile/user-profile.module';
 import { GoogleAccountModule } from './google-account/google-account.module';
 import { UserProfile } from './user-profile/entities/user-profile.entity';
@@ -46,7 +45,6 @@ import { GoogleAccount } from './google-account/entities/google-account.entity';
     ResetPasswordModule,
     RedisModule,
     ConversationModule,
-    MessageModule,
     UserProfileModule,
     GoogleAccountModule,
   ],
