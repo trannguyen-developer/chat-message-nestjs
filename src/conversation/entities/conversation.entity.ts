@@ -24,7 +24,7 @@ export class Conversation {
 
   @ManyToOne(() => User, (user) => user.createdConversation, { eager: true })
   @JoinColumn({ name: 'created_by' })
-  created_by: User;
+  createdBy: User;
 
   @OneToMany(
     () => ConversationMember,
@@ -32,20 +32,22 @@ export class Conversation {
   )
   members: ConversationMember[];
 
-  @OneToMany(() => Message, (message) => message.conversation_id)
+  @OneToMany(() => Message, (message) => message.conversation)
   messages: Message[];
 
   @Column({
+    name: 'created_at',
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP(6)',
     onUpdate: 'CURRENT_TIMESTAMP(6)',
   })
-  created_at: Date;
+  createdAt: Date;
 
   @Column({
+    name: 'updated_at',
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP(6)',
     onUpdate: 'CURRENT_TIMESTAMP(6)',
   })
-  updated_at: Date;
+  updatedAt: Date;
 }

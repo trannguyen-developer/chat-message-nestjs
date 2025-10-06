@@ -17,8 +17,8 @@ export class Message {
   @Column()
   content: string;
 
-  @Column({ default: MessageTypeEnum.TEXT })
-  message_type: MessageTypeEnum;
+  @Column({ name: 'message_type', default: MessageTypeEnum.TEXT })
+  messageType: MessageTypeEnum;
 
   @ManyToOne(() => User, (user) => user.message, { eager: true })
   @JoinColumn({ name: 'sender_id' })
@@ -28,19 +28,21 @@ export class Message {
     eager: true,
   })
   @JoinColumn({ name: 'conversation_id' })
-  conversation_id: Conversation;
+  conversation: Conversation;
 
   @Column({
+    name: 'created_at',
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP(6)',
     onUpdate: 'CURRENT_TIMESTAMP(6)',
   })
-  created_at: Date;
+  createdAt: Date;
 
   @Column({
+    name: 'updated_at',
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP(6)',
     onUpdate: 'CURRENT_TIMESTAMP(6)',
   })
-  updated_at: Date;
+  updatedAt: Date;
 }

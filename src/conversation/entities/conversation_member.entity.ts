@@ -29,6 +29,10 @@ export class ConversationMember {
   @Column({ default: RoleRoomEnum.MEMBER })
   role: RoleRoomEnum;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP(6)' })
+  @Column({
+    name: 'joined_at',
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP(6)',
+  })
   joinedAt: Date;
 }

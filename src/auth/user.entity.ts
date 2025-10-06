@@ -51,7 +51,7 @@ export class User {
   })
   googleAccount: GoogleAccount;
 
-  @OneToMany(() => Conversation, (conversation) => conversation.created_by)
+  @OneToMany(() => Conversation, (conversation) => conversation.createdBy)
   createdConversation: Conversation[];
 
   @OneToMany(
