@@ -43,7 +43,6 @@ export class ConversationService {
       const conversations = user.conversationMember.map(
         (member) => member.conversation,
       );
-      console.log('conversations', conversations);
 
       return { success: true, data: conversations };
     } catch (error) {
