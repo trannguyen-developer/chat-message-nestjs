@@ -6,10 +6,20 @@ import { Conversation } from './entities/conversation.entity';
 import { ConversationMember } from './entities/conversation_member.entity';
 import { Message } from './entities/message.entity';
 import { User } from 'src/auth/user.entity';
+import { AuthModule } from 'src/auth/auth.module';
+import { UserProfile } from 'src/user-profile/entities/user-profile.entity';
+import { RedisModule } from 'src/redis/redis.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Conversation, ConversationMember, Message]),
+    TypeOrmModule.forFeature([
+      User,
+      Conversation,
+      ConversationMember,
+      Message,
+      UserProfile,
+    ]),
+    AuthModule,
   ],
   controllers: [ConversationController],
   providers: [ConversationService],

@@ -6,10 +6,11 @@ import { VerifyEmailController } from './verify-email.controller';
 import { User } from '../auth/user.entity';
 import { MailModule } from '../mail/mail.module';
 import { HelpersModule } from '../helpers/helpers.module';
+import { UserProfile } from 'src/user-profile/entities/user-profile.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([VerifyEmail, User]),
+    TypeOrmModule.forFeature([VerifyEmail, User, UserProfile]),
     MailModule,
     HelpersModule,
   ],

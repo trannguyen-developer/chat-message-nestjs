@@ -13,7 +13,8 @@ export const AppDataSource = new DataSource({
   username: process.env.DATABASE_USERNAME,
   password: process.env.DATABASE_PASSWORD,
   database: process.env.DATABASE_NAME,
-  entities: ['dist/**/*.entity.js'],
+  entities: [__dirname + '/../**/*.entity{.ts,.js}'],
+  // entities: ['dist/**/*.entity.js'],
   // entities: isProduction
   //   ? ['dist/**/*.entity.js'] // production build JS
   //   : [User, UserProfile, VerifyEmail, ResetPassword, GoogleAccount], // dev TS

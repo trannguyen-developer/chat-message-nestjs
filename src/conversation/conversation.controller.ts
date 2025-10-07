@@ -12,10 +12,10 @@ import {
 } from '@nestjs/common';
 import { ConversationService } from './conversation.service';
 import { GetConversationDto } from './dto/conversation.dto';
-// import { AuthenticationGuard } from 'src/auth/guards/auth.guard';
+import { AuthenticationGuard } from 'src/auth/guards/auth.guard';
 
 @Controller('conversation')
-// @UseGuards(AuthenticationGuard)
+@UseGuards(AuthenticationGuard)
 export class ConversationController {
   private readonly conversationService: ConversationService;
   constructor(conversationService: ConversationService) {
@@ -23,15 +23,12 @@ export class ConversationController {
   }
 
   @Get('')
-  getConversation(@Req() req, @Res() res) {
-    return this.conversationService.getConversation(req, res);
+  getConversation(@Req() req) {
+    return this.conversationService.getConversation(req);
   }
 
   @Post('')
-  createConversation(
-    @Body() getConversationDTO: GetConversationDto,
-    @Res() res,
-  ) {
-    return this.conversationService.getConversation(getConversationDTO, res);
+  createConversation(@Body() getConversationDTO: GetConversationDto) {
+    return this.conversationService.getConversation(getConversationDTO);
   }
 }

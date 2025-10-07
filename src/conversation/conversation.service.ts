@@ -9,9 +9,7 @@ import { Repository } from 'typeorm';
 import { Conversation } from './entities/conversation.entity';
 import { ConversationMember } from './entities/conversation_member.entity';
 import { Message } from './entities/message.entity';
-import { GetConversationDto } from './dto/conversation.dto';
 import { User } from 'src/auth/user.entity';
-import { Response } from 'express';
 
 @Injectable()
 export class ConversationService {
@@ -29,7 +27,7 @@ export class ConversationService {
     private messageRepository: Repository<Message>,
   ) {}
 
-  async getConversation(req, res?: Response) {
+  async getConversation(req) {
     try {
       const userInfo = req?.user;
       const emailReq = userInfo?.email;
@@ -47,7 +45,7 @@ export class ConversationService {
       );
       console.log('conversations', conversations);
 
-      res.json({ success: true, data: conversations });
+      return { success: true, data: conversations };
     } catch (error) {
       throw new HttpException(
         'Some thing went wrong',

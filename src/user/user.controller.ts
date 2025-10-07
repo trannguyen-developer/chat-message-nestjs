@@ -8,10 +8,10 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-// import { AuthenticationGuard } from '../auth/guards/auth.guard';
+import { AuthenticationGuard } from '../auth/guards/auth.guard';
 
 @Controller('user')
-// @UseGuards(AuthenticationGuard)
+@UseGuards(AuthenticationGuard)
 export class UserController {
   private readonly userService: UserService;
   constructor(userService: UserService) {

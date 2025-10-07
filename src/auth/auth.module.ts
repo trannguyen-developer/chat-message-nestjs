@@ -11,7 +11,7 @@ import { LocalStrategy } from './local.strategy';
 import { MailModule } from '../mail/mail.module';
 import { VerifyEmailModule } from '../verify-email/verify-email.module';
 import { RedisModule } from 'src/redis/redis.module';
-// import { AuthenticationGuard } from './guards/auth.guard';
+import { AuthenticationGuard } from './guards/auth.guard';
 import { RedisService } from 'src/redis/redis.service';
 import { UserProfile } from 'src/user-profile/entities/user-profile.entity';
 import { GoogleAccount } from 'src/google-account/entities/google-account.entity';
@@ -48,8 +48,8 @@ import { GoogleAccountModule } from 'src/google-account/google-account.module';
     JwtStrategy,
     RedisModule,
     RedisService,
-    // AuthenticationGuard,
+    AuthenticationGuard,
   ],
-  exports: [AuthService],
+  exports: [AuthService, AuthenticationGuard, RedisService],
 })
 export class AuthModule {}
