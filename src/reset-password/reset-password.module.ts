@@ -7,10 +7,11 @@ import { ResetPasswordController } from './reset-password.controller';
 import { MailModule } from '../mail/mail.module';
 import { HelpersModule } from '../helpers/helpers.module';
 import { AuthModule } from '../auth/auth.module';
+import { UserProfile } from 'src/user-profile/entities/user-profile.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([ResetPassword, User]),
+    TypeOrmModule.forFeature([ResetPassword, User, UserProfile]),
     MailModule,
     HelpersModule,
     AuthModule,

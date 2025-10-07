@@ -12,20 +12,20 @@ export class UserService {
     private usersRepository: Repository<User>,
     private jwtService: JwtService,
   ) {}
-  async getInfo(authorization) {
-    const token = authorization.split(' ')?.[1];
-    const decodedJwtAccessToken = this.jwtService.decode(token);
-
+  async getInfo(req, res: Response) {
     try {
+      const userInfo = req?.user;
+      const emailReq = userInfo?.email;
+
       const user = await this.usersRepository.findOne({
         relations: ['profile', 'googleAccount'],
-        where: { email: decodedJwtAccessToken.email },
+        where: { email: emailReq },
       });
 
       const { id, email, profile, googleAccount } = user;
       const username = profile.username;
 
-      return {
+      return res.json({
         success: true,
         data: {
           userId: id,
@@ -34,7 +34,7 @@ export class UserService {
           googleName: googleAccount?.google_name,
           picture: googleAccount?.picture,
         },
-      };
+      });
     } catch (error) {
       throw new HttpException('Username not found', HttpStatus.NOT_FOUND);
     }

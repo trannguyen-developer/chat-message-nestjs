@@ -1,19 +1,31 @@
 import { AuthGuard } from '@nestjs/passport';
 import {
   ExecutionContext,
-  Inject,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
 import { RedisService } from 'src/redis/redis.service';
+import { Reflector } from '@nestjs/core';
+import { IS_PUBLIC_KEY } from 'src/common/decorators/public.decorator';
 
 @Injectable()
 export class AuthenticationGuard extends AuthGuard('jwt') {
-  constructor(private readonly redisService: RedisService) {
+  constructor(
+    private readonly reflector: Reflector,
+    private readonly redisService: RedisService,
+  ) {
     super(); // Không được thay đổi hoặc ghi đè redisService ở đây
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    // Kiểm tra nếu route có metadata "isPublic" => bỏ qua guard
+    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+
+    if (isPublic) return true;
+
     // Gọi canActivate của AuthGuard('jwt') để xác thực JWT trước
     const canActivate = (await super.canActivate(context)) as boolean;
     if (!canActivate) {

@@ -12,15 +12,15 @@ import { HelpersModule } from './helpers/helpers.module';
 import { ResetPasswordModule } from './reset-password/reset-password.module';
 import { ResetPassword } from './reset-password/reset-password.entity';
 import { RedisModule } from './redis/redis.module';
-import { UserController } from './user/user.controller';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TokenCleanupService } from './cron-job/tokenCleanupService';
 import { ConversationModule } from './conversation/conversation.module';
-import { MessageModule } from './message/message.module';
 import { UserProfileModule } from './user-profile/user-profile.module';
 import { GoogleAccountModule } from './google-account/google-account.module';
 import { UserProfile } from './user-profile/entities/user-profile.entity';
 import { GoogleAccount } from './google-account/entities/google-account.entity';
+import { APP_GUARD } from '@nestjs/core';
+import { AuthenticationGuard } from './auth/guards/auth.guard';
 
 @Module({
   imports: [
@@ -46,11 +46,15 @@ import { GoogleAccount } from './google-account/entities/google-account.entity';
     ResetPasswordModule,
     RedisModule,
     ConversationModule,
-    MessageModule,
     UserProfileModule,
     GoogleAccountModule,
   ],
-  controllers: [UserController],
-  providers: [TokenCleanupService],
+  providers: [
+    TokenCleanupService,
+    {
+      provide: APP_GUARD,
+      useClass: AuthenticationGuard,
+    },
+  ],
 })
 export class AppModule {}

@@ -50,6 +50,6 @@ import { GoogleAccountModule } from 'src/google-account/google-account.module';
     RedisService,
     AuthenticationGuard,
   ],
-  exports: [AuthService],
+  exports: [AuthService, AuthenticationGuard, RedisService],
 })
 export class AuthModule {}

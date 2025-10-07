@@ -4,11 +4,14 @@ import { VerifyEmail } from '../verify-email/verify-email.entity';
 import {
   Column,
   Entity,
-  JoinColumn,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { GoogleAccount } from 'src/google-account/entities/google-account.entity';
+import { Conversation } from 'src/conversation/entities/conversation.entity';
+import { ConversationMember } from 'src/conversation/entities/conversation_member.entity';
+import { Message } from 'src/conversation/entities/message.entity';
 
 @Entity('users')
 export class User {
@@ -48,17 +51,29 @@ export class User {
   })
   googleAccount: GoogleAccount;
 
-  @Column({
-    type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP(6)',
-    onUpdate: 'CURRENT_TIMESTAMP(6)',
-  })
-  created_time: Date;
+  @OneToMany(() => Conversation, (conversation) => conversation.createdBy)
+  createdConversation: Conversation[];
+
+  @OneToMany(
+    () => ConversationMember,
+    (conversationMember) => conversationMember.user,
+  )
+  conversationMember: ConversationMember[];
+
+  @OneToMany(() => Message, (message) => message.sender)
+  message: Message[];
 
   @Column({
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP(6)',
     onUpdate: 'CURRENT_TIMESTAMP(6)',
   })
-  updated_time: Date;
+  created_at: Date;
+
+  @Column({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP(6)',
+    onUpdate: 'CURRENT_TIMESTAMP(6)',
+  })
+  updated_at: Date;
 }

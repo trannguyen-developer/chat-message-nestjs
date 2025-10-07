@@ -3,7 +3,6 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
-  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Conversation } from './conversation.entity';
@@ -11,25 +10,29 @@ import { User } from 'src/auth/user.entity';
 import { RoleRoomEnum } from '../constants';
 
 @Entity()
-export class Participant {
+export class ConversationMember {
   @PrimaryGeneratedColumn('uuid')
   id: string;
-  @Column({ unique: true, nullable: true })
-  email: string;
 
-  @ManyToOne(() => Conversation, (conversation) => conversation.id)
+  @ManyToOne(() => Conversation, (conversation) => conversation.members, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'conversation_id' })
   conversation: Conversation;
 
-  @ManyToOne(() => User, (user) => user.id)
+  @ManyToOne(() => User, (user) => user.conversationMember, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'user_id' })
   user: User;
 
   @Column({ default: RoleRoomEnum.MEMBER })
   role: RoleRoomEnum;
 
   @Column({
+    name: 'joined_at',
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP(6)',
-    onUpdate: 'CURRENT_TIMESTAMP(6)',
   })
-  created_time: Date;
+  joinedAt: Date;
 }

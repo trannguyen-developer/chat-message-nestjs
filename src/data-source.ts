@@ -1,10 +1,5 @@
 import { DataSource } from 'typeorm';
 import { config } from 'dotenv';
-import { User } from './auth/user.entity';
-import { VerifyEmail } from './verify-email/verify-email.entity';
-import { ResetPassword } from './reset-password/reset-password.entity';
-import { UserProfile } from './user-profile/entities/user-profile.entity';
-import { GoogleAccount } from './google-account/entities/google-account.entity';
 
 config();
 
@@ -18,7 +13,8 @@ export const AppDataSource = new DataSource({
   username: process.env.DATABASE_USERNAME,
   password: process.env.DATABASE_PASSWORD,
   database: process.env.DATABASE_NAME,
-  entities: ['dist/**/*.entity.js'],
+  entities: [__dirname + '/../**/*.entity{.ts,.js}'],
+  // entities: ['dist/**/*.entity.js'],
   // entities: isProduction
   //   ? ['dist/**/*.entity.js'] // production build JS
   //   : [User, UserProfile, VerifyEmail, ResetPassword, GoogleAccount], // dev TS

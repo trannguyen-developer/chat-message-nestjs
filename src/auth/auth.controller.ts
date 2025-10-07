@@ -14,11 +14,13 @@ import { CreateUserDto } from '../auth/dto/create-user.dto';
 import { SignInDto } from '../auth/dto/signin.dto';
 import { Response } from 'express';
 import { LocalAuthGuard } from '../auth/guards/local.guard';
+import { Public } from 'src/common/decorators/public.decorator';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @Public()
   @UseGuards(LocalAuthGuard)
   @Post('sign-in')
   signIn(@Body() signInDTO: SignInDto, @Res() res: Response) {
