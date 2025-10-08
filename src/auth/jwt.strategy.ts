@@ -27,6 +27,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     // const user = await this.usersRepository.findOneBy({
     //   access_token: rawToken,
     // });
-    return { email: payload.email };
+    return { email: payload.email, id: payload?.id };
   }
 }

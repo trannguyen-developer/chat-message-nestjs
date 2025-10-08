@@ -68,7 +68,11 @@ export class AuthService {
   async signIn(signInDTO: SignInDto, res?: Response) {
     const { email } = signInDTO;
 
-    const payload = { email };
+    const user = await this.usersRepository.findOne({
+      where: { email },
+    });
+
+    const payload = { email, id: user.id };
     const accessToken = await this.getToken(payload);
     const refreshToken = await this.getToken(payload, {
       expiresIn: expiresTimeRefreshToken,
@@ -78,10 +82,6 @@ export class AuthService {
       { email },
       { refresh_token: refreshToken },
     );
-
-    const user = await this.usersRepository.findOne({
-      where: { email },
-    });
 
     if (user.is_verify) {
       await this.redisService.addToken(accessToken);

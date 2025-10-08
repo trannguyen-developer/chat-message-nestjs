@@ -20,7 +20,7 @@ export class Message {
   @Column({ name: 'message_type', default: MessageTypeEnum.TEXT })
   messageType: MessageTypeEnum;
 
-  @ManyToOne(() => User, (user) => user.message, { eager: true })
+  @ManyToOne(() => User, (user) => user.message)
   @JoinColumn({ name: 'sender_id' })
   sender: User;
 

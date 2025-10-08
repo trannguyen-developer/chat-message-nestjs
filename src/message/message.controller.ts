@@ -6,7 +6,7 @@ import { SentMessagePrivateDto } from './dto/message.dto';
 export class MessageController {
   constructor(private readonly messageService: MessageService) {}
 
-  @Post('sen-private')
+  @Post('sent-private')
   createConversation(
     @Body() sentMessagePrivateDto: SentMessagePrivateDto,
     @Req() req,
