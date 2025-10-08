@@ -8,7 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Conversation } from './entities/conversation.entity';
 import { ConversationMember } from './entities/conversation_member.entity';
-import { Message } from './entities/message.entity';
+import { Message } from '../message/entities/message.entity';
 import { User } from 'src/auth/user.entity';
 
 @Injectable()
@@ -52,4 +52,8 @@ export class ConversationService {
       );
     }
   }
+
+  async sendMessagePrivate() {}
+
+  async createConversation() {}
 }

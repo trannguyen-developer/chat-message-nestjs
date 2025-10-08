@@ -5,9 +5,9 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { MessageTypeEnum } from '../constants';
 import { User } from 'src/auth/user.entity';
-import { Conversation } from './conversation.entity';
+import { Conversation } from '../../conversation/entities/conversation.entity';
+import { MessageTypeEnum } from '../constants';
 
 @Entity()
 export class Message {
@@ -20,7 +20,7 @@ export class Message {
   @Column({ name: 'message_type', default: MessageTypeEnum.TEXT })
   messageType: MessageTypeEnum;
 
-  @ManyToOne(() => User, (user) => user.message, { eager: true })
+  @ManyToOne(() => User, (user) => user.message)
   @JoinColumn({ name: 'sender_id' })
   sender: User;
 

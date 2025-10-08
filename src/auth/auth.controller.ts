@@ -26,7 +26,7 @@ export class AuthController {
   signIn(@Body() signInDTO: SignInDto, @Res() res: Response) {
     return this.authService.signIn(signInDTO, res);
   }
-
+  @Public()
   @Post('sign-up')
   signUp(@Body() userCreateDTO: CreateUserDto, @Res() res: Response) {
     return this.authService.signUp(userCreateDTO, res);

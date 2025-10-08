@@ -12,10 +12,8 @@ import {
 } from '@nestjs/common';
 import { ConversationService } from './conversation.service';
 import { GetConversationDto } from './dto/conversation.dto';
-import { AuthenticationGuard } from 'src/auth/guards/auth.guard';
 
 @Controller('conversation')
-@UseGuards(AuthenticationGuard)
 export class ConversationController {
   private readonly conversationService: ConversationService;
   constructor(conversationService: ConversationService) {

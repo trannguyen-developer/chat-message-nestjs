@@ -2,8 +2,10 @@ import { Body, Controller, Post, Res } from '@nestjs/common';
 import { Response } from 'express';
 import { SendVerifyCodeDTO, VerifyCodeDTO } from './dto/verify-email.dto';
 import { VerifyEmailService } from './verify-email.service';
+import { Public } from 'src/common/decorators/public.decorator';
 
 @Controller('verify')
+@Public()
 export class VerifyEmailController {
   constructor(private readonly verifyEmailService: VerifyEmailService) {}
 
