@@ -5,9 +5,9 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { MessageTypeEnum } from '../constants';
 import { User } from 'src/auth/user.entity';
-import { Conversation } from './conversation.entity';
+import { Conversation } from '../../conversation/entities/conversation.entity';
+import { MessageTypeEnum } from '../constants';
 
 @Entity()
 export class Message {

@@ -9,7 +9,7 @@ import {
 import { TypeConversationEnum } from '../constants/conversation.enum';
 import { User } from 'src/auth/user.entity';
 import { ConversationMember } from './conversation_member.entity';
-import { Message } from './message.entity';
+import { Message } from '../../message/entities/message.entity';
 
 @Entity()
 export class Conversation {

@@ -21,6 +21,7 @@ import { UserProfile } from './user-profile/entities/user-profile.entity';
 import { GoogleAccount } from './google-account/entities/google-account.entity';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthenticationGuard } from './auth/guards/auth.guard';
+import { MessageModule } from './message/message.module';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { AuthenticationGuard } from './auth/guards/auth.guard';
     ConversationModule,
     UserProfileModule,
     GoogleAccountModule,
+    MessageModule,
   ],
   providers: [
     TokenCleanupService,

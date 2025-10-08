@@ -11,7 +11,7 @@ import {
 import { GoogleAccount } from 'src/google-account/entities/google-account.entity';
 import { Conversation } from 'src/conversation/entities/conversation.entity';
 import { ConversationMember } from 'src/conversation/entities/conversation_member.entity';
-import { Message } from 'src/conversation/entities/message.entity';
+import { Message } from 'src/message/entities/message.entity';
 
 @Entity('users')
 export class User {
