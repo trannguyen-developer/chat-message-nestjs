@@ -61,7 +61,7 @@ export class UserService {
         })
         .getMany();
 
-      return res.json({ success: true, data: users });
+      return res.json({ data: users });
     } catch (error) {
       throw new HttpException(
         'Internal server',
