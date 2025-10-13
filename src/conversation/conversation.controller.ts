@@ -1,31 +1,20 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Post,
-  Res,
-  UseGuards,
-  Param,
-  Headers,
-  Req,
-  Get,
-} from '@nestjs/common';
+import { Body, Controller, Post, Req, Get } from '@nestjs/common';
 import { ConversationService } from './conversation.service';
 import { GetConversationDto } from './dto/conversation.dto';
 
-@Controller('conversation')
+@Controller('')
 export class ConversationController {
   private readonly conversationService: ConversationService;
   constructor(conversationService: ConversationService) {
     this.conversationService = conversationService;
   }
 
-  @Get('')
+  @Get('conversations')
   getConversation(@Req() req) {
     return this.conversationService.getConversation(req);
   }
 
-  @Post('')
+  @Post('conversation')
   createConversation(@Body() getConversationDTO: GetConversationDto) {
     return this.conversationService.getConversation(getConversationDTO);
   }

@@ -47,21 +47,33 @@ export class UserService {
     try {
       const users = await this.usersRepository
         .createQueryBuilder('user')
+        .leftJoinAndSelect('user.profile', 'profile')
+        .leftJoinAndSelect('user.googleAccount', 'googleAccount')
         .select([
           'user.id',
-          'user.username',
           'user.email',
-          'user.google_name',
-          'user.picture',
+          'profile.username',
+          'profile.avatar',
+          'googleAccount.google_name',
+          'googleAccount.picture',
         ])
-        .where('user.username LIKE :searchKey', { searchKey: `%${searchKey}%` })
+        .where('profile.username LIKE :searchKey', {
+          searchKey: `%${searchKey}%`,
+        })
         .andWhere('user.email LIKE :searchKey', { searchKey: `%${searchKey}%` })
         .andWhere('user.email != :excludedEmail', {
           excludedEmail: decodedJwtAccessToken?.email,
         })
         .getMany();
 
-      return res.json({ success: true, data: users });
+      const result = users.map((user) => ({
+        id: user.id,
+        email: user.email,
+        username: user?.profile?.username || user?.googleAccount?.google_name,
+        avatar: user?.profile?.avatar || user?.googleAccount?.picture,
+      }));
+
+      return res.json({ data: result });
     } catch (error) {
       throw new HttpException(
         'Internal server',

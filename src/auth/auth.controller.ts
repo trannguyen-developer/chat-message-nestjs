@@ -32,11 +32,13 @@ export class AuthController {
     return this.authService.signUp(userCreateDTO, res);
   }
 
+  @Public()
   @Post('auth-google')
   authGoogle(@Req() req: any, @Res() res: Response) {
     return this.authService.authGoogle(req, res);
   }
 
+  @Public()
   @Post('refresh-token')
   refreshToken(
     @Body('refreshToken') refreshToken: string,

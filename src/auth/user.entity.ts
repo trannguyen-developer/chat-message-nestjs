@@ -46,7 +46,7 @@ export class User {
   })
   resetPW: ResetPassword;
 
-  @OneToOne(() => ResetPassword, (resetPassword) => resetPassword.user, {
+  @OneToOne(() => GoogleAccount, (googleAccount) => googleAccount.user, {
     cascade: true,
   })
   googleAccount: GoogleAccount;
